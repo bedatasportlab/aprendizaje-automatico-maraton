@@ -1,0 +1,42 @@
+---
+title: "Aprendizaje No Supervisado"
+---
+
+En este capítulo se hace clsutering
+
+
+## Importación de librerías
+
+Para comenzar, cargamos el ecosistema básico de librerías en Python para realizar dicho trabajo de exploración y preprocesamiento.
+
+```{python}
+#| label: importar-librerias-unsupervised
+#| eval: true
+#| echo: true
+#| warning: false
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+```
+
+## Carga de datos
+
+Disponemos de tres archivos independientes en formato CSV que contienen los resultados oficiales de la Maratón de Boston para las ediciones de 2015, 2016 y 2017. Procedemos a su lectura para poder posteriormente empezar a realizar los diferentes análisis.
+
+```{python}
+#| label: carga-datos-unsupervised
+#| eval: true
+#| echo: true
+#| warning: false
+
+
+# Si no os deja cargarlo al trabajar (no al hacer quarto render), en la consola importar os y dejais como directorio de trabajo la carpeta de notebooks
+
+# import os
+# os.getcwd (y si no está en notebook, poneis en la consola os.chdir("notebooks"))
+
+df_boston = pd.read_parquet("../data/processed/boston_post_eda.parquet")
+```

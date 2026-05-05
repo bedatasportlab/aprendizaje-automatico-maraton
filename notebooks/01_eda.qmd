@@ -21,9 +21,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Configuración visual para que los gráficos queden de revista
-sns.set_theme(style="whitegrid")
-plt.rcParams['figure.figsize'] = (10, 6)
 ```
 
 ## Carga de datos
@@ -35,6 +32,11 @@ Disponemos de tres archivos independientes en formato CSV que contienen los resu
 #| eval: true
 #| echo: true
 #| warning: false
+
+# Si no os deja cargarlo al trabajar (no al hacer quarto render), en la consola importar os y dejais como directorio de trabajo la carpeta de notebooks
+
+# import os
+# os.getcwd (y si no está en notebook, poneis en la consola os.chdir("notebooks"))
 
 df_2015 = pd.read_csv('../data/raw/results2015.csv')
 df_2016 = pd.read_csv('../data/raw/results2016.csv')
@@ -158,6 +160,8 @@ Una vez realizada la unificación, verificamos los datos realizando un muestreo 
 #| label: muestra-union-eda
 #| eval: true
 #| echo: true
+#| output: asis
+
 
 # Seleccionamos una muestra representativa con columnas demográficas y la nueva variable Date
 columnas_muestra = ['name', 'age', 'gender', 'country_residence', 'official_time', 'Date']
@@ -255,6 +259,8 @@ Una vez tenemos todos los datos enriquecidos con su formato ideal y las variable
 #| eval: true
 #| echo: true
 #| warning: false
+#| output: asis
+
 
 # 1. Calculamos las métricas de nulos por columna
 total_registros = len(df_boston)
@@ -311,6 +317,7 @@ Las condiciones registradas para cada edición fueron:
 #| label: anadir-clima-eda
 #| eval: true
 #| echo: true
+#| output: asis
 
 # 1. Definimos el diccionario con los datos climatológicos por fecha (Date)
 # Usamos strings de fecha porque en el paso anterior convertimos 'Date' a tipo datetime/date
@@ -330,7 +337,7 @@ df_boston['humidity_pct'] = df_boston['Date'].map(lambda x: clima_datos_fechas[x
 df_boston['wind_speed_kmh'] = df_boston['Date'].map(lambda x: clima_datos_fechas[x]['wind_speed_kmh'])
 
 # 3. Comprobamos que se han añadido correctamente
-print("Dataset con variables climatológicas integradas:")
+
 print(df_boston[['Date', 'temp_mean_c', 'humidity_pct', 'wind_speed_kmh']].drop_duplicates().to_markdown(index=False))
 ```
 
@@ -365,6 +372,7 @@ A continuación, implementamos una función de clasificación y la aplicamos sob
 #| eval: true
 #| echo: true
 #| warning: false
+#| output: asis
 
 def asignar_categoria_rendimiento(row):
     genero = row['gender']
@@ -437,6 +445,7 @@ Establecemos el umbral de fatiga siguiendo los estándares de la literatura cien
 #| eval: true
 #| echo: true
 #| warning: false
+#| output: asis
 
 # 1. Calculamos el tiempo de la primera y segunda mitad en segundos
 t1 = df_boston['half']
@@ -455,7 +464,6 @@ distribucion_muro['Porcentaje (%)'] = (distribucion_muro['Número de Corredores'
 distribucion_muro.index = ['Ritmo Constante (0)', 'Chocan contra el muro (1)']
 
 # Imprimimos la tabla resultante
-print("Distribución de la variable 'hit_the_wall' en el dataset unificado:")
 print(distribucion_muro.to_markdown())
 
 ```
