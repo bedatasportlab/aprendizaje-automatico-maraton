@@ -1,0 +1,13 @@
+name: aprendizaje_automatico
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - scikit-learn
+  - xgboost
+  - seaborn
+  - pandas
+  - shap
+  - matplotlib
+  - numpy
