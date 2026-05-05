@@ -3,7 +3,7 @@ project:
   output-dir: docs  # TRUCO 1: Cambiamos _book por docs. GitHub Pages lee esta carpeta automáticamente.
 
 book:
-  title: "Análisis Predictivo: Maratón de Tokyo (2015-2017)"
+  title: "Análisis Predictivo: Maratón de Boston (2015-2017)"
   subtitle: "Aprendizaje Automático | Máster en Análisis de Datos Deportivos"
   author: 
     - "Alba Martínez de la Hermosa"

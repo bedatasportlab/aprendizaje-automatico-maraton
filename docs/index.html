@@ -10,7 +10,7 @@
 <meta name="author" content="Daniel Lopez Paredes">
 <meta name="author" content="Alonso González Romero">
 
-<title>Análisis Predictivo: Maratón de Tokyo (2015-2017)</title>
+<title>Análisis Predictivo: Maratón de Boston (2015-2017)</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -88,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introducción y Objetivos</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introducción</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -103,9 +103,9 @@ ul.task-list li input[type="checkbox"] {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Análisis Predictivo: Maratón de Tokyo (2015-2017)</a> 
+      <a href="./">Análisis Predictivo: Maratón de Boston (2015-2017)</a> 
         <div class="sidebar-tools-main">
-    <a href="./Análisis-Predictivo--Maratón-de-Tokyo--2015-2017-.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <a href="./Análisis-Predictivo--Maratón-de-Boston--2015-2017-.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
 </div>
     </div>
       </div>
@@ -119,13 +119,13 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introducción y Objetivos</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introducción</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./notebooks/01_eda.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Capítulo 1: Análisis Exploratorio de Datos (EDA)</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Análisis Exploratorio de Datos</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -150,7 +150,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Índice de contenidos</h2>
    
   <ul>
-  <li><a href="#bienvenidos" id="toc-bienvenidos" class="nav-link active" data-scroll-target="#bienvenidos">Bienvenidos</a></li>
+  <li><a href="#resumen" id="toc-resumen" class="nav-link active" data-scroll-target="#resumen"><span class="header-section-number">0.1</span> Resumen</a></li>
   </ul>
 </nav>
     </div>
@@ -159,7 +159,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Análisis Predictivo: Maratón de Tokyo (2015-2017)</h1>
+<h1 class="title">Análisis Predictivo: Maratón de Boston (2015-2017)</h1>
 <p class="subtitle lead">Aprendizaje Automático | Máster en Análisis de Datos Deportivos</p>
 </div>
 
@@ -191,24 +191,11 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="bienvenidos" class="level1 unnumbered">
-<h1 class="unnumbered">Bienvenidos</h1>
-<p>Este trabajo presenta un flujo completo de Ciencia de Datos aplicado a los resultados del <strong>Maratón de Tokyo</strong> en sus ediciones 2015, 2016 y 2017.</p>
-<p>El objetivo principal es desarrollar modelos de <strong>Aprendizaje Automático</strong> capaces de predecir el tiempo de finalización de los corredores basándonos en variables sociodemográficas y de rendimiento parcial.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Contexto Académico
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Trabajo realizado para la asignatura de <strong>Aprendizaje Automático</strong> del <strong>Máster en Análisis de Datos Deportivos (MUSA)</strong>.</p>
-</div>
-</div>
-<p>Utilizaremos 2015 y 2016 para el entrenamiento y validación, dejando 2017 como conjunto de test ciego para evaluar el rendimiento real de nuestros modelos.</p>
+<section id="resumen" class="level2" data-number="0.1">
+<h2 data-number="0.1" class="anchored" data-anchor-id="resumen"><span class="header-section-number">0.1</span> Resumen</h2>
+<p>Este trabajo presenta un flujo completo de Ciencia de Datos aplicado a los resultados del <strong>Maratón de Boston</strong> en sus ediciones 2015, 2016 y 2017.</p>
+<p>El objetivo principal es desarrollar modelos de <strong>Aprendizaje Automático</strong> capaces de predecir el tiempo de finalización de los corredores basándonos en variables de rendimiento parcial, condiciones externas de carrera y variables sociodemográficas.</p>
+<p>(rellenar más cuando tengamos todo el trabajo hehco)</p>
 
 
 </section>
@@ -618,8 +605,8 @@ ul.task-list li input[type="checkbox"] {
   <div class="nav-page nav-page-previous">
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./notebooks/01_eda.html" class="pagination-link" aria-label="Capítulo 1: Análisis Exploratorio de Datos (EDA)">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Capítulo 1: Análisis Exploratorio de Datos (EDA)</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./notebooks/01_eda.html" class="pagination-link" aria-label="Análisis Exploratorio de Datos">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Análisis Exploratorio de Datos</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

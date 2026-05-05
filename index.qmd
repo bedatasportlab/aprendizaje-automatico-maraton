@@ -1,16 +1,12 @@
 ---
-title: "Introducción y Objetivos"
+title: "Introducción"
 ---
 
-# Bienvenidos {.unnumbered}
+## Resumen
 
-Este trabajo presenta un flujo completo de Ciencia de Datos aplicado a los resultados del **Maratón de Tokyo** en sus ediciones 2015, 2016 y 2017. 
+Este trabajo presenta un flujo completo de Ciencia de Datos aplicado a los resultados del **Maratón de Boston** en sus ediciones 2015, 2016 y 2017. 
 
-El objetivo principal es desarrollar modelos de **Aprendizaje Automático** capaces de predecir el tiempo de finalización de los corredores basándonos en variables sociodemográficas y de rendimiento parcial.
+El objetivo principal es desarrollar modelos de **Aprendizaje Automático** capaces de predecir el tiempo de finalización de los corredores basándonos en variables de rendimiento parcial, condiciones externas de carrera y variables sociodemográficas. 
 
-::: {.callout-note}
-## Contexto Académico
-Trabajo realizado para la asignatura de **Aprendizaje Automático** del **Máster en Análisis de Datos Deportivos (MUSA)**.
-:::
 
-Utilizaremos 2015 y 2016 para el entrenamiento y validación, dejando 2017 como conjunto de test ciego para evaluar el rendimiento real de nuestros modelos.
+(rellenar más cuando tengamos todo el trabajo hehco)
