@@ -184,6 +184,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#importación-de-librerías" id="toc-importación-de-librerías" class="nav-link active" data-scroll-target="#importación-de-librerías"><span class="header-section-number">4.1</span> Importación de librerías</a></li>
   <li><a href="#carga-de-datos" id="toc-carga-de-datos" class="nav-link" data-scroll-target="#carga-de-datos"><span class="header-section-number">4.2</span> Carga de datos</a></li>
+  <li><a href="#problema-de-clasificación.-detección-de-atletas-que-sufren-en-el-muro." id="toc-problema-de-clasificación.-detección-de-atletas-que-sufren-en-el-muro." class="nav-link" data-scroll-target="#problema-de-clasificación.-detección-de-atletas-que-sufren-en-el-muro."><span class="header-section-number">4.3</span> Problema de clasificación. Detección de atletas que sufren en el muro.</a>
+  <ul class="collapse">
+  <li><a href="#k-vecinos" id="toc-k-vecinos" class="nav-link" data-scroll-target="#k-vecinos"><span class="header-section-number">4.3.1</span> K-vecinos</a></li>
+  <li><a href="#árbol-de-decisión" id="toc-árbol-de-decisión" class="nav-link" data-scroll-target="#árbol-de-decisión"><span class="header-section-number">4.3.2</span> Árbol de Decisión</a></li>
+  <li><a href="#random-forest" id="toc-random-forest" class="nav-link" data-scroll-target="#random-forest"><span class="header-section-number">4.3.3</span> Random Forest</a></li>
+  </ul></li>
+  <li><a href="#problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km" id="toc-problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km" class="nav-link" data-scroll-target="#problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km"><span class="header-section-number">4.4</span> Problema de regresión. Predicción de tiempo final según sus datos hasta el parcial 35km</a></li>
   </ul>
 </nav>
     </div>
@@ -209,23 +216,59 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>En este capítulo se hace aprendizaje supervisado</p>
+<p>Este capítulo se divide en dos problemas distintos:</p>
+<ol type="1">
+<li><p><strong>Problema de clasificación</strong>: Predecir si los corredores “petan” o no en el muro a través de la variable creada en el análisis exploratorio.</p></li>
+<li><p><strong>Problema de regresión</strong>: Predecir el tiempo final de los atletas al paso por los 35km. Cabe destacar que en la asignatura de <em>Análisis de Datos en el Deporte</em> se realizó un estudio con modelos de regresión y se observó que el parcial que mejores predicciones obtenía era el 35, por lo tanto, ahora vamos a probar varios modelos sobre este parcial para determinar cuál es mejor.</p></li>
+</ol>
 <section id="importación-de-librerías" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="importación-de-librerías"><span class="header-section-number">4.1</span> Importación de librerías</h2>
-<p>Para comenzar, cargamos el ecosistema básico de librerías en Python para realizar dicho trabajo de exploración y preprocesamiento.</p>
+<p>Comenzamos importando las librerías necesarias</p>
 <div id="importar-librerias-supervised" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Ver código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Configuración visual</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">'figure.figsize'</span>] <span class="op">=</span> (<span class="dv">10</span>, <span class="dv">6</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. HERRAMIENTAS DE PREPARACIÓN DE DATOS (PARTICIONADO Y ESCALADO)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. MODELOS DE CLASIFICACIÓN (Para predecir "hit_the_wall")</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.neighbors <span class="im">import</span> KNeighborsClassifier</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.tree <span class="im">import</span> DecisionTreeClassifier</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. MODELOS DE REGRESIÓN (Para predecir el tiempo en meta)</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression, Ridge, Lasso <span class="co"># Modelos Lineales Generalizados</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.tree <span class="im">import</span> DecisionTreeRegressor</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> xgboost <span class="im">as</span> xgb <span class="co"># El rey del rendimiento</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. MÉTRICAS DE EVALUACIÓN (Para ponerles nota a los modelos)</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Para Clasificación:</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score, classification_report, confusion_matrix, roc_auc_score</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Para Regresión:</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_absolute_error, mean_squared_error, r2_score</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
 <section id="carga-de-datos" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="carga-de-datos"><span class="header-section-number">4.2</span> Carga de datos</h2>
-<p>Disponemos de tres archivos independientes en formato CSV que contienen los resultados oficiales de la Maratón de Boston para las ediciones de 2015, 2016 y 2017. Procedemos a su lectura para poder posteriormente empezar a realizar los diferentes análisis.</p>
+<p>Realizamos la carga de datos.</p>
 <div id="carga-datos-supervised" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Ver código</summary>
@@ -236,6 +279,52 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>df_boston <span class="op">=</span> pd.read_parquet(<span class="st">"../data/processed/boston_post_eda.parquet"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
+</section>
+<section id="problema-de-clasificación.-detección-de-atletas-que-sufren-en-el-muro." class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="problema-de-clasificación.-detección-de-atletas-que-sufren-en-el-muro."><span class="header-section-number">4.3</span> Problema de clasificación. Detección de atletas que sufren en el muro.</h2>
+<p>Para comenzar esta sección, vamos a realizar la división de nuestro conjunto de datos en Train-Test-Validation.</p>
+<p>Para ello, la mejor opción será realizar un muestreo estratificado ya que hay un 79.78% de corredores que no chocan con el muro <code>hit_the_wall=0</code>.</p>
+<p>A continuación, se hace el muestreo estratificado en una proporción 60-20-20 para cada conjunto. Además, se dejan en X las variables predictoras que pueden llegar a usarse (age, gender, country_residence, 5k, 10k, 15k, 20k, half, temp_mean_c, humidity_pct, wind_speed_kmh).</p>
+<div id="particion-clasificacion-supervised" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. SELECCIÓN DE VARIABLES</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>features_todas <span class="op">=</span> [</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'age'</span>, <span class="st">'gender'</span>, <span class="st">'country_residence'</span>, </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'5k'</span>, <span class="st">'10k'</span>, <span class="st">'15k'</span>, <span class="st">'20k'</span>, <span class="st">'half'</span>, </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'temp_mean_c'</span>, <span class="st">'humidity_pct'</span>, <span class="st">'wind_speed_kmh'</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>target <span class="op">=</span> <span class="st">'hit_the_wall'</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> df_boston[features_todas]</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> df_boston[target]</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. DIVISIÓN ESTRATIFICADA (60/20/20)</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Primer corte: 60% Train / 40% Resto</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>X_train, X_temp, y_train, y_temp <span class="op">=</span> train_test_split(</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    X, y, test_size<span class="op">=</span><span class="fl">0.40</span>, random_state<span class="op">=</span><span class="dv">42</span>, stratify<span class="op">=</span>y</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Segundo corte: Mitad del resto para Validación (20%) y mitad para Test (20%)</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>X_val, X_test, y_val, y_test <span class="op">=</span> train_test_split(</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    X_temp, y_temp, test_size<span class="op">=</span><span class="fl">0.50</span>, random_state<span class="op">=</span><span class="dv">42</span>, stratify<span class="op">=</span>y_temp</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Una vez tenemos nuestros datos ya divididos, entrenaremos nuestros modelos en <em>Train</em>, los evaluaremos en <em>Test</em> y cuando tengamos todos los posibles modelos, elegiremos uno para probarlo en <em>Validation</em></p>
+<section id="k-vecinos" class="level3" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="k-vecinos"><span class="header-section-number">4.3.1</span> K-vecinos</h3>
+</section>
+<section id="árbol-de-decisión" class="level3" data-number="4.3.2">
+<h3 data-number="4.3.2" class="anchored" data-anchor-id="árbol-de-decisión"><span class="header-section-number">4.3.2</span> Árbol de Decisión</h3>
+</section>
+<section id="random-forest" class="level3" data-number="4.3.3">
+<h3 data-number="4.3.3" class="anchored" data-anchor-id="random-forest"><span class="header-section-number">4.3.3</span> Random Forest</h3>
+</section>
+</section>
+<section id="problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km"><span class="header-section-number">4.4</span> Problema de regresión. Predicción de tiempo final según sus datos hasta el parcial 35km</h2>
 
 
 </section>

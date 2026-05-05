@@ -2,11 +2,6 @@
 title: "Introducción"
 ---
 
-## Resumen
-
 Este trabajo presenta un flujo completo de Ciencia de Datos aplicado a los resultados del **Maratón de Boston** en sus ediciones 2015, 2016 y 2017. 
 
 El objetivo principal es desarrollar modelos de **Aprendizaje Automático** capaces de predecir el tiempo de finalización de los corredores basándonos en variables de rendimiento parcial, condiciones externas de carrera y variables sociodemográficas. 
-
-
-(rellenar más cuando tengamos todo el trabajo hehco)

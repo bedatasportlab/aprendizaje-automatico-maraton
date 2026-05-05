@@ -2,12 +2,16 @@
 title: "Aprendizaje Supervisado"
 ---
 
-En este capítulo se hace aprendizaje supervisado
+Este capítulo se divide en dos problemas distintos: 
+
+1. **Problema de clasificación**: Predecir si los corredores "petan" o no en el muro a través de la variable creada en el análisis exploratorio. 
+
+2. **Problema de regresión**: Predecir el tiempo final de los atletas al paso por los 35km. Cabe destacar que en la asignatura de *Análisis de Datos en el Deporte* se realizó un estudio con modelos de regresión y se observó que el parcial que mejores predicciones obtenía era el 35, por lo tanto, ahora vamos a probar varios modelos sobre este parcial para determinar cuál es mejor. 
 
 
 ## Importación de librerías
 
-Para comenzar, cargamos el ecosistema básico de librerías en Python para realizar dicho trabajo de exploración y preprocesamiento.
+Comenzamos importando las librerías necesarias
 
 ```{python}
 #| label: importar-librerias-supervised
@@ -20,11 +24,43 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# Configuración visual
+sns.set_theme(style="whitegrid")
+plt.rcParams['figure.figsize'] = (10, 6)
+
+# ==============================================================================
+# 1. HERRAMIENTAS DE PREPARACIÓN DE DATOS (PARTICIONADO Y ESCALADO)
+# ==============================================================================
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+# ==============================================================================
+# 2. MODELOS DE CLASIFICACIÓN (Para predecir "hit_the_wall")
+# ==============================================================================
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+
+# ==============================================================================
+# 3. MODELOS DE REGRESIÓN (Para predecir el tiempo en meta)
+# ==============================================================================
+from sklearn.linear_model import LinearRegression, Ridge, Lasso # Modelos Lineales Generalizados
+from sklearn.tree import DecisionTreeRegressor
+import xgboost as xgb # El rey del rendimiento
+
+# ==============================================================================
+# 4. MÉTRICAS DE EVALUACIÓN (Para ponerles nota a los modelos)
+# ==============================================================================
+# Para Clasificación:
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, roc_auc_score
+# Para Regresión:
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
 ```
 
 ## Carga de datos
 
-Disponemos de tres archivos independientes en formato CSV que contienen los resultados oficiales de la Maratón de Boston para las ediciones de 2015, 2016 y 2017. Procedemos a su lectura para poder posteriormente empezar a realizar los diferentes análisis.
+Realizamos la carga de datos.
 
 ```{python}
 #| label: carga-datos-supervised
@@ -38,3 +74,60 @@ Disponemos de tres archivos independientes en formato CSV que contienen los resu
 # os.getcwd (y si no está en notebook, poneis en la consola os.chdir("notebooks"))
 df_boston = pd.read_parquet("../data/processed/boston_post_eda.parquet")
 ```
+
+
+## Problema de clasificación. Detección de atletas que sufren en el muro. 
+
+Para comenzar esta sección, vamos a realizar la división de nuestro conjunto de datos en Train-Test-Validation. 
+
+Para ello, la mejor opción será realizar un muestreo estratificado ya que hay un 79.78% de corredores que no chocan con el muro `hit_the_wall=0`. 
+
+A continuación, se hace el muestreo estratificado en una proporción 60-20-20 para cada conjunto. Además, se dejan en X las variables predictoras que pueden llegar a usarse (age, gender, country_residence, 5k, 10k, 15k, 20k, half, temp_mean_c, humidity_pct, wind_speed_kmh). 
+
+
+
+
+```{python}
+#| label: particion-clasificacion-supervised
+#| eval: true
+#| echo: true
+
+# 1. SELECCIÓN DE VARIABLES
+features_todas = [
+    'age', 'gender', 'country_residence', 
+    '5k', '10k', '15k', '20k', 'half', 
+    'temp_mean_c', 'humidity_pct', 'wind_speed_kmh'
+]
+target = 'hit_the_wall'
+
+
+X = df_boston[features_todas]
+y = df_boston[target]
+
+# 3. DIVISIÓN ESTRATIFICADA (60/20/20)
+# Primer corte: 60% Train / 40% Resto
+X_train, X_temp, y_train, y_temp = train_test_split(
+    X, y, test_size=0.40, random_state=42, stratify=y
+)
+
+# Segundo corte: Mitad del resto para Validación (20%) y mitad para Test (20%)
+X_val, X_test, y_val, y_test = train_test_split(
+    X_temp, y_temp, test_size=0.50, random_state=42, stratify=y_temp
+)
+```
+
+
+Una vez tenemos nuestros datos ya divididos, entrenaremos nuestros modelos en *Train*, los evaluaremos en *Test* y cuando tengamos todos los posibles modelos, elegiremos uno para probarlo en *Validation*
+
+
+### K-vecinos
+
+### Árbol de Decisión
+
+### Random Forest
+
+
+
+
+
+## Problema de regresión. Predicción de tiempo final según sus datos hasta el parcial 35km

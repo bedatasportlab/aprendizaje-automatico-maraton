@@ -108,6 +108,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../style.css">
 </head>
@@ -185,6 +214,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#importación-de-librerías" id="toc-importación-de-librerías" class="nav-link active" data-scroll-target="#importación-de-librerías"><span class="header-section-number">3.1</span> Importación de librerías</a></li>
   <li><a href="#carga-de-datos" id="toc-carga-de-datos" class="nav-link" data-scroll-target="#carga-de-datos"><span class="header-section-number">3.2</span> Carga de datos</a></li>
+  <li><a href="#clustering-no-jerárquico-identificación-de-estrategias-de-carrera-pacing" id="toc-clustering-no-jerárquico-identificación-de-estrategias-de-carrera-pacing" class="nav-link" data-scroll-target="#clustering-no-jerárquico-identificación-de-estrategias-de-carrera-pacing"><span class="header-section-number">3.3</span> Clustering No Jerárquico: Identificación de Estrategias de Carrera (<em>Pacing</em>)</a>
+  <ul class="collapse">
+  <li><a href="#fundamento-teórico-el-algoritmo-k-means" id="toc-fundamento-teórico-el-algoritmo-k-means" class="nav-link" data-scroll-target="#fundamento-teórico-el-algoritmo-k-means"><span class="header-section-number">3.3.1</span> Fundamento Teórico: El Algoritmo K-Means</a></li>
+  <li><a href="#metodología-de-ejecución-y-análisis" id="toc-metodología-de-ejecución-y-análisis" class="nav-link" data-scroll-target="#metodología-de-ejecución-y-análisis"><span class="header-section-number">3.3.2</span> Metodología de Ejecución y Análisis</a></li>
+  </ul></li>
+  <li><a href="#clustering-jerárquico-análisis-táctico-de-la-élite-femenina-2015" id="toc-clustering-jerárquico-análisis-táctico-de-la-élite-femenina-2015" class="nav-link" data-scroll-target="#clustering-jerárquico-análisis-táctico-de-la-élite-femenina-2015"><span class="header-section-number">3.4</span> Clustering Jerárquico: Análisis Táctico de la Élite Femenina (2015)</a>
+  <ul class="collapse">
+  <li><a href="#fundamento-teórico-enfoque-aglomerativo-bottom-up" id="toc-fundamento-teórico-enfoque-aglomerativo-bottom-up" class="nav-link" data-scroll-target="#fundamento-teórico-enfoque-aglomerativo-bottom-up"><span class="header-section-number">3.4.1</span> Fundamento Teórico: Enfoque Aglomerativo (<em>Bottom-Up</em>)</a></li>
+  <li><a href="#análisis-táctico" id="toc-análisis-táctico" class="nav-link" data-scroll-target="#análisis-táctico"><span class="header-section-number">3.4.2</span> Análisis Táctico</a></li>
+  </ul></li>
+  <li><a href="#clustering-en-streaming-simulación-de-carrera-en-vivo" id="toc-clustering-en-streaming-simulación-de-carrera-en-vivo" class="nav-link" data-scroll-target="#clustering-en-streaming-simulación-de-carrera-en-vivo"><span class="header-section-number">3.5</span> Clustering en Streaming: Simulación de Carrera en Vivo</a></li>
   </ul>
 </nav>
     </div>
@@ -210,34 +250,344 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>En este capítulo se hace clsutering</p>
+<p>En este capítulo se realizarán diversos estudios de Aprendizaje no Supervisado. Dada la naturaleza de los datos, se seguirán los siguientes enfoques:</p>
+<ol type="1">
+<li><strong>Clustering No Jerárquico</strong> para descubrir las estrategias de carrera</li>
+<li><strong>Clustering Jerárquico</strong> para agrupar a corredores similares en cuanto a sus resultados en las 3 maratones</li>
+<li><strong>Clustering en streaming</strong> para seguir a los atletas de élite a través de cada parcial</li>
+</ol>
 <section id="importación-de-librerías" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="importación-de-librerías"><span class="header-section-number">3.1</span> Importación de librerías</h2>
-<p>Para comenzar, cargamos el ecosistema básico de librerías en Python para realizar dicho trabajo de exploración y preprocesamiento.</p>
+<p>Para comenzar, cargamos el ecosistema necesario:</p>
 <div id="importar-librerias-unsupervised" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Ver código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># El algoritmo para pacing</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.cluster <span class="im">import</span> KMeans</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Las métricas para decidir si la 'k' es buena</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> silhouette_score</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Herramienta para escalar datos</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Herramientas para hacer el jerárquico</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.cluster.hierarchy <span class="im">import</span> dendrogram, linkage, fcluster</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Herramientas para los mapas auto-organizados</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">'figure.figsize'</span>] <span class="op">=</span> (<span class="dv">12</span>, <span class="dv">6</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">'font.size'</span>] <span class="op">=</span> <span class="dv">11</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
 <section id="carga-de-datos" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="carga-de-datos"><span class="header-section-number">3.2</span> Carga de datos</h2>
-<p>Disponemos de tres archivos independientes en formato CSV que contienen los resultados oficiales de la Maratón de Boston para las ediciones de 2015, 2016 y 2017. Procedemos a su lectura para poder posteriormente empezar a realizar los diferentes análisis.</p>
+<p>Cargamos los datos resultantes tras haber hecho el análisis exploratorio de datos en la anterior sección.</p>
 <div id="carga-datos-unsupervised" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Ver código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Si no os deja cargarlo al trabajar (no al hacer quarto render), en la consola importar os y dejais como directorio de trabajo la carpeta de notebooks</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># import os</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># os.getcwd (y si no está en notebook, poneis en la consola os.chdir("notebooks"))</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>df_boston <span class="op">=</span> pd.read_parquet(<span class="st">"../data/processed/boston_post_eda.parquet"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># import os</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># os.getcwd (y si no está en notebook, poneis en la consola os.chdir("notebooks"))</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>df_boston <span class="op">=</span> pd.read_parquet(<span class="st">"../data/processed/boston_post_eda.parquet"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
+</section>
+<section id="clustering-no-jerárquico-identificación-de-estrategias-de-carrera-pacing" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="clustering-no-jerárquico-identificación-de-estrategias-de-carrera-pacing"><span class="header-section-number">3.3</span> Clustering No Jerárquico: Identificación de Estrategias de Carrera (<em>Pacing</em>)</h2>
+<p>El objetivo de esta sección es descubrir y categorizar de forma automática las diferentes estrategias de ritmo (<em>pacing strategies</em>) empleadas por los corredores durante la maratón. Para ello, utilizaremos técnicas de aprendizaje no supervisado, buscando agrupar a los atletas según la distribución de su esfuerzo a lo largo de los 42,195 km, independientemente de su marca final absoluta.</p>
+<section id="fundamento-teórico-el-algoritmo-k-means" class="level3" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="fundamento-teórico-el-algoritmo-k-means"><span class="header-section-number">3.3.1</span> Fundamento Teórico: El Algoritmo K-Means</h3>
+<p>Para llevar a cabo esta agrupación, implementaremos el algoritmo <strong>K-Means</strong> (<em>K-Medias</em>), uno de los métodos de clustering particional más robustos y utilizados.</p>
+<p>A diferencia del clustering jerárquico, K-Means requiere que se defina a priori el número de grupos (<span class="math inline">\(k\)</span>) que se desean encontrar. El algoritmo funciona de manera iterativa siguiendo este proceso:</p>
+<ol type="1">
+<li><strong>Inicialización:</strong> Se seleccionan aleatoriamente <span class="math inline">\(k\)</span> puntos en el espacio de características que actuarán como los centros iniciales de los grupos (centroides, <span class="math inline">\(\mu_i\)</span>).</li>
+<li><strong>Asignación:</strong> Se calcula la distancia euclidiana entre cada corredor y todos los centroides. Cada corredor se asigna al clúster cuyo centroide esté más cercano.</li>
+<li><strong>Actualización:</strong> Una vez asignados todos los puntos, se recalcula la posición de cada centroide moviéndolo a la media matemática de todos los corredores que pertenecen a ese grupo.</li>
+<li><strong>Convergencia:</strong> Los pasos 2 y 3 se repiten de forma iterativa hasta que los centroides dejan de moverse o se alcanza un número máximo de iteraciones.</li>
+</ol>
+<p>Matemáticamente, K-Means busca minimizar la varianza intra-clúster, conocida como <strong>Inercia</strong> (<span class="math inline">\(J\)</span>), que se define como la suma de las distancias al cuadrado de cada punto respecto a su centroide:</p>
+<p><span class="math display">\[J = \sum_{i=1}^{k} \sum_{x \in C_i} ||x - \mu_i||^2\]</span></p>
+<p>Donde <span class="math inline">\(k\)</span> es el número de clústeres, <span class="math inline">\(C_i\)</span> es el conjunto de puntos que pertenecen al clúster <span class="math inline">\(i\)</span>, <span class="math inline">\(x\)</span> es el punto de datos (la estrategia del corredor) y <span class="math inline">\(\mu_i\)</span> es el centroide del clúster.</p>
+</section>
+<section id="metodología-de-ejecución-y-análisis" class="level3" data-number="3.3.2">
+<h3 data-number="3.3.2" class="anchored" data-anchor-id="metodología-de-ejecución-y-análisis"><span class="header-section-number">3.3.2</span> Metodología de Ejecución y Análisis</h3>
+<p>Para que el algoritmo capture estrategias puras y no se sesgue por la velocidad absoluta del corredor, se debe seguir un riguroso proceso de ingeniería de características (<em>Feature Engineering</em>) y análisis posterior:</p>
+<section id="transformación-de-los-tiempos-normalización-de-ritmos" class="level4" data-number="3.3.2.1">
+<h4 data-number="3.3.2.1" class="anchored" data-anchor-id="transformación-de-los-tiempos-normalización-de-ritmos"><span class="header-section-number">3.3.2.1</span> 1. Transformación de los Tiempos (Normalización de Ritmos)</h4>
+<p>Los tiempos del dataset original son acumulativos. Para capturar el esfuerzo en cada tramo, se debe transformar la variable de paso calculando el <strong>tiempo neto de cada segmento</strong> (ej. <span class="math inline">\(T_{10k} - T_{5k}\)</span> para obtener el tiempo invertido exclusivamente entre el kilómetro 5 y el 10). Una vez calculados los tiempos netos por tramo, estos se deben dividir entre el tiempo final oficial (<code>official_time</code>). De este modo, cada variable representará el <strong>porcentaje del tiempo total</strong> que el atleta invirtió en ese parcial concreto.</p>
+</section>
+<section id="determinación-del-número-óptimo-de-clústeres-k" class="level4" data-number="3.3.2.2">
+<h4 data-number="3.3.2.2" class="anchored" data-anchor-id="determinación-del-número-óptimo-de-clústeres-k"><span class="header-section-number">3.3.2.2</span> 2. Determinación del Número Óptimo de Clústeres (<span class="math inline">\(k\)</span>)</h4>
+<p>Se iterará el algoritmo K-Means para distintos valores de <span class="math inline">\(k\)</span> (por ejemplo, del 2 al 10). Para seleccionar el <span class="math inline">\(k\)</span> óptimo que mejor defina las tipologías de corredores, se apoyará la decisión en dos métricas gráficas: * <strong>El Método del Codo (<em>Elbow Method</em>):</strong> Analizando la curva de caída de la Inercia. * <strong>El Análisis de la Silueta (<em>Silhouette Score</em>):</strong> Para medir la cohesión y separación real de los grupos formados.</p>
+</section>
+<section id="perfilado-y-visualización-de-estrategias" class="level4" data-number="3.3.2.3">
+<h4 data-number="3.3.2.3" class="anchored" data-anchor-id="perfilado-y-visualización-de-estrategias"><span class="header-section-number">3.3.2.3</span> 3. Perfilado y Visualización de Estrategias</h4>
+<p>Una vez elegida la <span class="math inline">\(k\)</span> óptima y asignados los grupos, se extraerán las coordenadas de los centroides finales. Se graficarán estos centroides en un gráfico de líneas superpuestas (Eje X: Segmento de carrera; Eje Y: Porcentaje de tiempo invertido). Esto permitirá nombrar a cada cluster.</p>
+</section>
+<section id="conclusiones-y-cruce-de-variables" class="level4" data-number="3.3.2.4">
+<h4 data-number="3.3.2.4" class="anchored" data-anchor-id="conclusiones-y-cruce-de-variables"><span class="header-section-number">3.3.2.4</span> 4. Conclusiones y Cruce de Variables</h4>
+<p>Finalmente, se extraerá el valor de negocio de la agrupación realizando un análisis cruzado (<em>Cross-tabulation</em>). Se evaluará, por ejemplo, la relación entre cada cluster y la variable <code>hit_the_wall</code> o el porcentaje de atletas (sobre el total de ese grupo) que hay en cada clúster</p>
+</section>
+</section>
+</section>
+<section id="clustering-jerárquico-análisis-táctico-de-la-élite-femenina-2015" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="clustering-jerárquico-análisis-táctico-de-la-élite-femenina-2015"><span class="header-section-number">3.4</span> Clustering Jerárquico: Análisis Táctico de la Élite Femenina (2015)</h2>
+<p>Mientras que el algoritmo K-Means nos permitió identificar macrotendencias de ritmo en la población general de corredores, el <strong>Clustering Jerárquico</strong> es la herramienta ideal para diseccionar grupos pequeños y específicos. En esta sección, abandonaremos el enfoque masivo para centrarnos en un ecosistema altamente competitivo: la categoría de Élite Femenina en la edición de 2015.</p>
+<section id="fundamento-teórico-enfoque-aglomerativo-bottom-up" class="level3" data-number="3.4.1">
+<h3 data-number="3.4.1" class="anchored" data-anchor-id="fundamento-teórico-enfoque-aglomerativo-bottom-up"><span class="header-section-number">3.4.1</span> Fundamento Teórico: Enfoque Aglomerativo (<em>Bottom-Up</em>)</h3>
+<p>El algoritmo jerárquico aglomerativo asume inicialmente que cada observación (cada corredor) es un clúster independiente. A partir de ahí, el proceso iterativo es el siguiente:</p>
+<ol type="1">
+<li><p><strong>Cálculo de la Matriz de Distancias:</strong> Se calcula la distancia entre todos los pares de clústeres existentes. La métrica más utilizada es la <strong>Distancia Euclidiana</strong> en un espacio de <span class="math inline">\(n\)</span> dimensiones: <span class="math display">\[d(x, y) = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}\]</span></p></li>
+<li><p><strong>Fusión:</strong> Se identifican los dos clústeres separados por la menor distancia y se unen para formar un nuevo clúster consolidado.</p></li>
+<li><p><strong>Actualización:</strong> Se recalcula la matriz de distancias para medir la lejanía entre el nuevo clúster formado y los clústeres restantes.</p></li>
+<li><p><strong>Iteración:</strong> Los pasos 2 y 3 se repiten hasta que todas las observaciones quedan englobadas en un único macro-clúster central.</p></li>
+</ol>
+<section id="criterios-de-enlace-linkage-criteria" class="level4" data-number="3.4.1.1">
+<h4 data-number="3.4.1.1" class="anchored" data-anchor-id="criterios-de-enlace-linkage-criteria"><span class="header-section-number">3.4.1.1</span> Criterios de Enlace (<em>Linkage Criteria</em>)</h4>
+<p>El punto más crítico del algoritmo en el paso 3 es definir cómo se mide la distancia matemática entre dos grupos que contienen múltiples puntos. Para ello, existen diversos criterios de enlace. En nuestro análisis deportivo, evaluaremos principalmente:</p>
+<ul>
+<li><strong>Enlace Simple (<em>Single Linkage</em>):</strong> Calcula la distancia entre los dos puntos más cercanos de cada clúster. Tiende a generar grupos alargados en forma de cadena.</li>
+<li><strong>Enlace Completo (<em>Complete Linkage</em>):</strong> Calcula la distancia entre los dos puntos más alejados, favoreciendo la creación de grupos esféricos y compactos.</li>
+</ul>
+</section>
+<section id="representación-visual-y-corte-el-dendrograma" class="level4" data-number="3.4.1.2">
+<h4 data-number="3.4.1.2" class="anchored" data-anchor-id="representación-visual-y-corte-el-dendrograma"><span class="header-section-number">3.4.1.2</span> Representación Visual y Corte: El Dendrograma</h4>
+<p>El resultado de este proceso no es una simple asignación de etiquetas, sino una estructura de árbol denominada <strong>Dendrograma</strong>. En este gráfico, el eje vertical (altura) representa la distancia matemática a la que se han fusionado dos grupos.</p>
+</section>
+</section>
+<section id="análisis-táctico" class="level3" data-number="3.4.2">
+<h3 data-number="3.4.2" class="anchored" data-anchor-id="análisis-táctico"><span class="header-section-number">3.4.2</span> Análisis Táctico</h3>
+<p>Para este estudio, aplicaremos esta técnica con el fin de identificar perfiles de consistencia temporal; es decir, agruparemos a los corredores basándonos en cómo ha evolucionado su rendimiento a lo largo de las ediciones de 2015, 2016 y 2017.</p>
+<div id="preparacion-tactica-elite-unsupervised" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Filtramos: Nos quedamos con la edición 2015, mujeres y categoría Élite</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Convertimos Date a datetime para extraer el año de forma segura</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>filtro_2015 <span class="op">=</span> pd.to_datetime(df_boston[<span class="st">'Date'</span>]).dt.year <span class="op">==</span> <span class="dv">2015</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>df_elite_f_2015 <span class="op">=</span> df_boston[filtro_2015 <span class="op">&amp;</span> (df_boston[<span class="st">'gender'</span>] <span class="op">==</span> <span class="st">'F'</span>) <span class="op">&amp;</span> (df_boston[<span class="st">'athlete_level'</span>] <span class="op">==</span> <span class="st">'Élite'</span>)].copy()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Total de corredoras en la Élite Femenina de 2015: </span><span class="sc">{</span><span class="bu">len</span>(df_elite_f_2015)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Calculamos los tiempos netos de cada tramo (segmentos de 5km + sprint final)</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>df_elite_f_2015[<span class="st">'net_0_5k'</span>]   <span class="op">=</span> df_elite_f_2015[<span class="st">'5k'</span>]</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>df_elite_f_2015[<span class="st">'net_5_10k'</span>]  <span class="op">=</span> df_elite_f_2015[<span class="st">'10k'</span>] <span class="op">-</span> df_elite_f_2015[<span class="st">'5k'</span>]</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>df_elite_f_2015[<span class="st">'net_10_15k'</span>] <span class="op">=</span> df_elite_f_2015[<span class="st">'15k'</span>] <span class="op">-</span> df_elite_f_2015[<span class="st">'10k'</span>]</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>df_elite_f_2015[<span class="st">'net_15_20k'</span>] <span class="op">=</span> df_elite_f_2015[<span class="st">'20k'</span>] <span class="op">-</span> df_elite_f_2015[<span class="st">'15k'</span>]</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>df_elite_f_2015[<span class="st">'net_20_25k'</span>] <span class="op">=</span> df_elite_f_2015[<span class="st">'25k'</span>] <span class="op">-</span> df_elite_f_2015[<span class="st">'20k'</span>]</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>df_elite_f_2015[<span class="st">'net_25_30k'</span>] <span class="op">=</span> df_elite_f_2015[<span class="st">'30k'</span>] <span class="op">-</span> df_elite_f_2015[<span class="st">'25k'</span>]</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>df_elite_f_2015[<span class="st">'net_30_35k'</span>] <span class="op">=</span> df_elite_f_2015[<span class="st">'35k'</span>] <span class="op">-</span> df_elite_f_2015[<span class="st">'30k'</span>]</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>df_elite_f_2015[<span class="st">'net_35_40k'</span>] <span class="op">=</span> df_elite_f_2015[<span class="st">'40k'</span>] <span class="op">-</span> df_elite_f_2015[<span class="st">'35k'</span>]</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Normalizamos: Convertimos los netos a porcentajes del tiempo total</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>columnas_netas <span class="op">=</span> [<span class="st">'net_0_5k'</span>, <span class="st">'net_5_10k'</span>, <span class="st">'net_10_15k'</span>, <span class="st">'net_15_20k'</span>, </span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>                  <span class="st">'net_20_25k'</span>, <span class="st">'net_25_30k'</span>, <span class="st">'net_30_35k'</span>, <span class="st">'net_35_40k'</span>]</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>variables_clustering <span class="op">=</span> []</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> columnas_netas:</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    nuevo_nombre <span class="op">=</span> <span class="ss">f"pct_</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    df_elite_f_2015[nuevo_nombre] <span class="op">=</span> df_elite_f_2015[col] <span class="op">/</span> df_elite_f_2015[<span class="st">'official_time'</span>]</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    variables_clustering.append(nuevo_nombre)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Establecemos el nombre de la corredora como índice</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Esto es CRUCIAL para que SciPy ponga sus nombres reales al final del dendrograma</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>df_elite_f_2015.set_index(<span class="st">'display_name'</span>, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Creamos el sub-dataframe definitivo (X) solo con las variables a agrupar</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>X_jerarquico <span class="op">=</span> df_elite_f_2015[variables_clustering]</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Vista previa de las primeras 3 corredoras</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Matriz de características tácticas (porcentajes) lista para SciPy:</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(X_jerarquico.head(<span class="dv">3</span>).to_markdown())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Total de corredoras en la Élite Femenina de 2015: 16
+
+Matriz de características tácticas (porcentajes) lista para SciPy:
+
+| display_name    |   pct_net_0_5k |   pct_net_5_10k |   pct_net_10_15k |   pct_net_15_20k |   pct_net_20_25k |   pct_net_25_30k |   pct_net_30_35k |   pct_net_35_40k |
+|:----------------|---------------:|----------------:|-----------------:|-----------------:|-----------------:|-----------------:|-----------------:|-----------------:|
+| Caroline Rotich |       0.117194 |        0.120184 |         0.120184 |         0.118574 |         0.118229 |         0.119149 |         0.120299 |         0.115009 |
+| Mare Dibaba     |       0.117025 |        0.120129 |         0.120129 |         0.118634 |         0.118175 |         0.118979 |         0.120359 |         0.114956 |
+| Buzunesh Deba   |       0.116776 |        0.120106 |         0.120106 |         0.118498 |         0.118039 |         0.118843 |         0.120106 |         0.114824 |</code></pre>
+</div>
+</div>
+<p>Una vez tenemos las variables, vamos a realizar y graficar el clustering jerárquico.</p>
+<p>Comenzamos calculando el clustering jerárquico utilizando un enlace simple:</p>
+<div id="cell-calculo-jerarquico-elite" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Estandarizamos los datos para que todos los tramos de 5km pesen lo mismo</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>scaler <span class="op">=</span> StandardScaler()</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>X_scaled <span class="op">=</span> scaler.fit_transform(X_jerarquico)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Calculamos la matriz de enlaces (Clustering Jerárquico)</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># La variable 'Z' contendrá toda la historia de cómo se han ido uniendo las corredoras</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>Z <span class="op">=</span> linkage(X_scaled, method<span class="op">=</span><span class="st">'single'</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">8</span>))</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Dendrograma Táctico - Élite Femenina Boston 2015"</span>, fontsize<span class="op">=</span><span class="dv">16</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Distancia (Variabilidad intra-clúster)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Atletas"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Dibujamos el dendrograma completo</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>dendro <span class="op">=</span> dendrogram(</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    Z, </span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span>X_jerarquico.index, </span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    leaf_rotation<span class="op">=</span><span class="dv">90</span>, </span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    leaf_font_size<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    color_threshold<span class="op">=</span><span class="dv">0</span> <span class="co"># Lo ponemos a 0 para que de momento salga todo de un color hasta que decidamos el corte</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_unsupervised_files/figure-html/calculo-jerarquico-elite-output-1.png" id="calculo-jerarquico-elite" width="1331" height="755" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Tras visualizar el dendrograma, observamos que se pueden sacar 2 grupos distintos. Los dividimos y vemos sus centroides para ver las estrategias</p>
+<div id="cell-centroides-elite-unsupervised" class="cell" data-fig-height="6" data-fig-width="12" data-execution_count="6">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. DEFINIR EL CORTE: Ajusta este valor numérico mirando el eje Y del dendrograma anterior</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>altura_corte <span class="op">=</span> <span class="fl">3.0</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Extraemos las etiquetas de los grupos</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>df_elite_f_2015[<span class="st">'cluster_tactico'</span>] <span class="op">=</span> fcluster(Z, t<span class="op">=</span>altura_corte, criterion<span class="op">=</span><span class="st">'distance'</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Distribución de atletas por grupo táctico: </span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df_elite_f_2015[<span class="st">'cluster_tactico'</span>].value_counts().sort_index().to_markdown())</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Calculamos las estrategias promedio (centroides)</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>centroides_jerarquico <span class="op">=</span> df_elite_f_2015.groupby(<span class="st">'cluster_tactico'</span>)[variables_clustering].mean()</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Graficamos las líneas de ritmo de cada grupo</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">6</span>))</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Limpiamos los nombres del Eje X para la leyenda</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>etiquetas_x <span class="op">=</span> [col.replace(<span class="st">'pct_net_'</span>, <span class="st">''</span>).replace(<span class="st">'_'</span>, <span class="st">'-'</span>) <span class="cf">for</span> col <span class="kw">in</span> variables_clustering]</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> cluster_id <span class="kw">in</span> centroides_jerarquico.index:</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    plt.plot(</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        etiquetas_x, </span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        centroides_jerarquico.loc[cluster_id], </span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        marker<span class="op">=</span><span class="st">'o'</span>, </span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        linewidth<span class="op">=</span><span class="fl">2.5</span>,</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="ss">f'Grupo Táctico </span><span class="sc">{</span>cluster_id<span class="sc">}</span><span class="ss"> (n=</span><span class="sc">{</span><span class="bu">len</span>(df_elite_f_2015[df_elite_f_2015[<span class="st">"cluster_tactico"</span>] <span class="op">==</span> cluster_id])<span class="sc">}</span><span class="ss">)'</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Estrategias de Carrera Promedio por Grupo Táctico"</span>, fontsize<span class="op">=</span><span class="dv">16</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Segmento de la Carrera"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Proporción del Tiempo Total Invertido"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>plt.legend(title<span class="op">=</span><span class="st">"Grupos identificados"</span>)</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Distribución de atletas por grupo táctico: 
+
+|   cluster_tactico |   count |
+|------------------:|--------:|
+|                 1 |      11 |
+|                 2 |       5 |</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_unsupervised_files/figure-html/centroides-elite-unsupervised-output-2.png" id="centroides-elite-unsupervised" width="1139" height="564" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Podemos observar que el cluster 1 contiene 11 corredoras y es una estrategia mucho más constante que la del cluster 2, en la que es totalmente incremental.</p>
+<p>El clustering jerárquico nos ha revelado la existencia de dos estrategias de carrera, pero… ¿cuál de ellas fue la más efectiva?</p>
+<p>Para descubrirlo, cruzaremos las etiquetas de los grupos tácticos obtenidos con la posición final real de las atletas en su categoría (<code>division_result</code>). Calcularemos la posición media de cada pelotón e identificaremos en qué grupo se encontraba la ganadora absoluta de la prueba.</p>
+<div id="rendimiento-grupos-tacticos" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Agrupamos por clúster táctico y calculamos métricas sobre la posición</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>resumen_posiciones <span class="op">=</span> df_elite_f_2015.groupby(<span class="st">'cluster_tactico'</span>).agg(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    Num_Atletas<span class="op">=</span>(<span class="st">'division_result'</span>, <span class="st">'count'</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    Posicion_Media<span class="op">=</span>(<span class="st">'division_result'</span>, <span class="st">'mean'</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    Mejor_Posicion<span class="op">=</span>(<span class="st">'division_result'</span>, <span class="st">'min'</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>).reset_index()</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Añadimos una columna visual para identificar rápidamente dónde está la ganadora</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>resumen_posiciones[<span class="st">'Ganadora_en_grupo'</span>] <span class="op">=</span> resumen_posiciones[<span class="st">'Mejor_Posicion'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="st">'Sí 🏆'</span> <span class="cf">if</span> x <span class="op">==</span> <span class="fl">1.0</span> <span class="cf">else</span> <span class="st">'No'</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Redondeamos los decimales para que la tabla quede limpia</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>resumen_posiciones <span class="op">=</span> resumen_posiciones.<span class="bu">round</span>({<span class="st">'Posicion_Media'</span>: <span class="dv">1</span>})</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Renombramos columnas para la presentación</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>resumen_posiciones.rename(columns<span class="op">=</span>{</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">'cluster_tactico'</span>: <span class="st">'Grupo Táctico'</span>,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Num_Atletas'</span>: <span class="st">'Nº Atletas'</span>,</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Posicion_Media'</span>: <span class="st">'Posición Final Media'</span>,</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Mejor_Posicion'</span>: <span class="st">'Mejor Posición del Grupo'</span>,</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Ganadora_en_grupo'</span>: <span class="st">'¿Contiene a la Ganadora?'</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>}, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Imprimimos la tabla en formato Markdown</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>) <span class="co"># Salto de línea por seguridad para Pandoc</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(resumen_posiciones.to_markdown(index<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 12%">
+<col style="width: 21%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Grupo Táctico</th>
+<th style="text-align: right;">Nº Atletas</th>
+<th style="text-align: right;">Posición Final Media</th>
+<th style="text-align: right;">Mejor Posición del Grupo</th>
+<th style="text-align: left;">¿Contiene a la Ganadora?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">6.5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">Sí 🏆</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: left;">No</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Por lo tanto observamos que la estrategia constante (Cluster 1) es la mejor estrategia en cuanto a resultados obtenidos.</p>
+</section>
+</section>
+<section id="clustering-en-streaming-simulación-de-carrera-en-vivo" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="clustering-en-streaming-simulación-de-carrera-en-vivo"><span class="header-section-number">3.5</span> Clustering en Streaming: Simulación de Carrera en Vivo</h2>
+<p>La idea es cogerse a los atletas de élite femeninos y hacer un clustering en streaming al paso de cada parcial para ver cómo se hacen o deshacen los grupos de carrera.</p>
 
 
 </section>

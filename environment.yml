@@ -4,14 +4,18 @@ channels:
   - defaults
 dependencies:
   - python=3.10
-  - scikit-learn
-  - xgboost
-  - seaborn
   - pandas
-  - tabulate
-  - pyarrow
+  - numpy
+  - scikit-learn
+  - scipy           
+  - xgboost
   - shap
   - matplotlib
-  - numpy
+  - seaborn
   - jupyter
+  - tabulate
+  - pyarrow
   - pyyaml
+  - pip
+  - pip:
+      - minisom     
