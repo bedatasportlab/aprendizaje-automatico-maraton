@@ -1,0 +1,32 @@
+[
+  {
+    "objectID": "notebooks/01_eda.html",
+    "href": "notebooks/01_eda.html",
+    "title": "1  Capítulo 1: Análisis Exploratorio de Datos (EDA)",
+    "section": "",
+    "text": "1.1 1. Importación de librerías\nEn este capítulo vamos a cargar los datos originales de las maratones, analizaremos las distribuciones de las variables y limpiaremos los valores nulos para dejar el dataset preparado para los modelos.\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport seaborn as sns\n\n# Configuración visual para que los gráficos queden de revista\nsns.set_theme(style=\"whitegrid\")\nplt.rcParams['figure.figsize'] = (10, 6)",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Capítulo 1: Análisis Exploratorio de Datos (EDA)</span>"
+    ]
+  },
+  {
+    "objectID": "notebooks/01_eda.html#carga-de-datos",
+    "href": "notebooks/01_eda.html#carga-de-datos",
+    "title": "1  Capítulo 1: Análisis Exploratorio de Datos (EDA)",
+    "section": "1.2 2. Carga de datos",
+    "text": "1.2 2. Carga de datos\n\n# Cargar los datos crudos (ajusta el nombre del archivo al tuyo real)\n# df_2015 = pd.read_csv('../data/raw/marathon_2015.csv')\n# df_2016 = pd.read_csv('../data/raw/marathon_2016.csv')\n\n# df_2015.head()",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Capítulo 1: Análisis Exploratorio de Datos (EDA)</span>"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Análisis ¿¿",
+    "section": "",
+    "text": "Introducción\nBienvenidos al proyecto de Aprendizaje Automático basado en los datos del Maratón de Tokyo.\nEn este estudio, analizaremos los datos de las ediciones de 2015 y 2016 para entrenar modelos predictivos, y evaluaremos su rendimiento con los datos de la edición de 2017.\nEl proyecto se divide en las siguientes fases:\n\nAnálisis Exploratorio y Limpieza (EDA): Comprensión de las variables y preparación de los datos.\nAprendizaje No Supervisado: Agrupación de corredores mediante técnicas de clustering.\nAprendizaje Supervisado: Modelos predictivos (Árboles, Redes Neuronales, XGBoost) e interpretabilidad con SHAP.",
+    "crumbs": [
+      "Introducción"
+    ]
+  }
+]

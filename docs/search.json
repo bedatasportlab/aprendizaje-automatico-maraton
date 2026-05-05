@@ -1,0 +1,32 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Análisis Predictivo: Maratón de Tokyo (2015-2017)",
+    "section": "",
+    "text": "Bienvenidos\nEste trabajo presenta un flujo completo de Ciencia de Datos aplicado a los resultados del Maratón de Tokyo en sus ediciones 2015, 2016 y 2017.\nEl objetivo principal es desarrollar modelos de Aprendizaje Automático capaces de predecir el tiempo de finalización de los corredores basándonos en variables sociodemográficas y de rendimiento parcial.\n\n\n\n\n\n\nNoteContexto Académico\n\n\n\nTrabajo realizado para la asignatura de Aprendizaje Automático del Máster en Análisis de Datos Deportivos (MUSA).\n\n\nUtilizaremos 2015 y 2016 para el entrenamiento y validación, dejando 2017 como conjunto de test ciego para evaluar el rendimiento real de nuestros modelos.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introducción y Objetivos</span>"
+    ]
+  },
+  {
+    "objectID": "notebooks/01_eda.html",
+    "href": "notebooks/01_eda.html",
+    "title": "2  Capítulo 1: Análisis Exploratorio de Datos (EDA)",
+    "section": "",
+    "text": "2.1 1. Importación de librerías\nEn este capítulo vamos a cargar los datos originales de las maratones, analizaremos las distribuciones de las variables y limpiaremos los valores nulos para dejar el dataset preparado para los modelos.\nVer código\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport seaborn as sns\n\n# Configuración visual para que los gráficos queden de revista\nsns.set_theme(style=\"whitegrid\")\nplt.rcParams['figure.figsize'] = (10, 6)",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Capítulo 1: Análisis Exploratorio de Datos (EDA)</span>"
+    ]
+  },
+  {
+    "objectID": "notebooks/01_eda.html#carga-de-datos",
+    "href": "notebooks/01_eda.html#carga-de-datos",
+    "title": "2  Capítulo 1: Análisis Exploratorio de Datos (EDA)",
+    "section": "2.2 2. Carga de datos",
+    "text": "2.2 2. Carga de datos\n\n\nVer código\n# Cargar los datos crudos (ajusta el nombre del archivo al tuyo real)\n# df_2015 = pd.read_csv('../data/raw/marathon_2015.csv')\n# df_2016 = pd.read_csv('../data/raw/marathon_2016.csv')\n\n# df_2015.head()",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Capítulo 1: Análisis Exploratorio de Datos (EDA)</span>"
+    ]
+  }
+]

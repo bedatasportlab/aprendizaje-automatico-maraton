@@ -11,3 +11,5 @@ dependencies:
   - shap
   - matplotlib
   - numpy
+  - jupyter
+  - pyyaml

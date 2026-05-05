@@ -1,0 +1,28 @@
+---
+title: "Capítulo 1: Análisis Exploratorio de Datos (EDA)"
+---
+
+En este capítulo vamos a cargar los datos originales de las maratones, analizaremos las distribuciones de las variables y limpiaremos los valores nulos para dejar el dataset preparado para los modelos.
+
+## 1. Importación de librerías
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Configuración visual para que los gráficos queden de revista
+sns.set_theme(style="whitegrid")
+plt.rcParams['figure.figsize'] = (10, 6)
+```
+
+## 2. Carga de datos
+
+```{python}
+# Cargar los datos crudos (ajusta el nombre del archivo al tuyo real)
+# df_2015 = pd.read_csv('../data/raw/marathon_2015.csv')
+# df_2016 = pd.read_csv('../data/raw/marathon_2016.csv')
+
+# df_2015.head()
+```

@@ -1,0 +1,36 @@
+project:
+  type: book
+  output-dir: docs  # TRUCO 1: Cambiamos _book por docs. GitHub Pages lee esta carpeta automáticamente.
+
+book:
+  title: "Análisis Predictivo: Maratón de Tokyo (2015-2017)"
+  subtitle: "Aprendizaje Automático | Máster en Análisis de Datos Deportivos"
+  author: 
+    - "Alba Martínez de la Hermosa"
+    - "Daniel Lopez Paredes"
+    - "Alonso González Romero"
+  date: today
+  date-format: "D [de] MMMM, YYYY"
+  downloads: [pdf]  # TRUCO 2: Esto pone un botón de "Descargar PDF" directamente en tu página web.
+  chapters:
+    - index.qmd
+    - notebooks/01_eda.qmd
+    - notebooks/02_unsupervised.qmd
+    - notebooks/03_supervised.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: style.css
+    toc: true
+    toc-title: "Índice de contenidos"
+    number-sections: true
+    code-fold: true
+    code-summary: "Ver código"
+  
+  pdf:              # TRUCO 3: Le decimos a Quarto que también ensamble un PDF único.
+    toc: true
+    number-sections: true
+    colorlinks: true
+
+jupyter: python3
