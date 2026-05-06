@@ -2,6 +2,11 @@
 title: "Introducción"
 ---
 
-Este trabajo presenta un flujo completo de Ciencia de Datos aplicado a los resultados del **Maratón de Boston** en sus ediciones 2015, 2016 y 2017. 
+## Contextualización y Motivación {-}
 
-El objetivo principal es desarrollar modelos de **Aprendizaje Automático** capaces de predecir el tiempo de finalización de los corredores basándonos en variables de rendimiento parcial, condiciones externas de carrera y variables sociodemográficas. 
+El maratón, una prueba de resistencia extrema de 42,195 kilómetros, representa uno de los retos de gestión energética y fisiológica más complejos en el ámbito del deporte de élite y amateur.
+
+El presente trabajo se realiza usando como conjunto de datos los registros históricos del **Maratón de Boston** en sus ediciones de **2015, 2016 y 2017**. 
+
+Los principales **objetivos** de dicho trabajo son poner en práctica los algoritmos y modelos vistos en clase sobre *Aprendizaje Supervisado y No Supervisado*. 
+
