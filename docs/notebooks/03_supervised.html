@@ -107,6 +107,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../style.css">
 </head>
@@ -186,9 +215,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#carga-de-datos" id="toc-carga-de-datos" class="nav-link" data-scroll-target="#carga-de-datos"><span class="header-section-number">4.2</span> Carga de datos</a></li>
   <li><a href="#problema-de-clasificación.-detección-de-atletas-que-sufren-en-el-muro." id="toc-problema-de-clasificación.-detección-de-atletas-que-sufren-en-el-muro." class="nav-link" data-scroll-target="#problema-de-clasificación.-detección-de-atletas-que-sufren-en-el-muro."><span class="header-section-number">4.3</span> Problema de clasificación. Detección de atletas que sufren en el muro.</a>
   <ul class="collapse">
-  <li><a href="#k-vecinos" id="toc-k-vecinos" class="nav-link" data-scroll-target="#k-vecinos"><span class="header-section-number">4.3.1</span> K-vecinos</a></li>
+  <li><a href="#k-vecinos-más-cercanos-k-nn" id="toc-k-vecinos-más-cercanos-k-nn" class="nav-link" data-scroll-target="#k-vecinos-más-cercanos-k-nn"><span class="header-section-number">4.3.1</span> K-Vecinos Más Cercanos (K-NN)</a></li>
   <li><a href="#árbol-de-decisión" id="toc-árbol-de-decisión" class="nav-link" data-scroll-target="#árbol-de-decisión"><span class="header-section-number">4.3.2</span> Árbol de Decisión</a></li>
-  <li><a href="#random-forest" id="toc-random-forest" class="nav-link" data-scroll-target="#random-forest"><span class="header-section-number">4.3.3</span> Random Forest</a></li>
+  <li><a href="#aplicación-del-algoritmo-1" id="toc-aplicación-del-algoritmo-1" class="nav-link" data-scroll-target="#aplicación-del-algoritmo-1"><span class="header-section-number">4.3.3</span> Aplicación del Algoritmo</a></li>
+  <li><a href="#random-forest" id="toc-random-forest" class="nav-link" data-scroll-target="#random-forest"><span class="header-section-number">4.3.4</span> Random Forest</a></li>
+  <li><a href="#selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación" id="toc-selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación" class="nav-link" data-scroll-target="#selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación"><span class="header-section-number">4.3.5</span> Selección del mejor modelo y predicción en el conjunto de Validación</a></li>
   </ul></li>
   <li><a href="#problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km" id="toc-problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km" class="nav-link" data-scroll-target="#problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km"><span class="header-section-number">4.4</span> Problema de regresión. Predicción de tiempo final según sus datos hasta el parcial 35km</a></li>
   </ul>
@@ -260,7 +291,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. MÉTRICAS DE EVALUACIÓN (Para ponerles nota a los modelos)</span></span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Para Clasificación:</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score, classification_report, confusion_matrix, roc_auc_score</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score, recall_score, classification_report, confusion_matrix, roc_auc_score</span>
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Para Regresión:</span></span>
 <span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_absolute_error, mean_squared_error, r2_score</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
@@ -312,19 +343,193 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Una vez tenemos nuestros datos ya divididos, entrenaremos nuestros modelos en <em>Train</em>, los evaluaremos en <em>Test</em> y cuando tengamos todos los posibles modelos, elegiremos uno para probarlo en <em>Validation</em></p>
-<section id="k-vecinos" class="level3" data-number="4.3.1">
-<h3 data-number="4.3.1" class="anchored" data-anchor-id="k-vecinos"><span class="header-section-number">4.3.1</span> K-vecinos</h3>
+<p>Una vez tenemos nuestros datos ya divididos, entrenaremos nuestros modelos en <em>Train</em>, los evaluaremos en <em>Test</em> y cuando tengamos todos los posibles modelos, elegiremos uno para probarlo en <em>Validation</em>.</p>
+<p>Cabe destacar que evaluaremos el rendimiento de dichos modelos a través de las métricas:</p>
+<ul>
+<li><strong>Accuracy</strong>: Una medida de cómo fallamos en general</li>
+<li><strong>Recall</strong>: Ya que decirle a un atleta que no va a petar cuando en realidad peta es un error que puede costar muy caro, nuestro objetivo será maximizar dicha métrica, es decir, de todos los que realmente petan, ¿cuántos caza el modelo?</li>
+</ul>
+<section id="k-vecinos-más-cercanos-k-nn" class="level3" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="k-vecinos-más-cercanos-k-nn"><span class="header-section-number">4.3.1</span> K-Vecinos Más Cercanos (K-NN)</h3>
+<p>El algoritmo de K-Vecinos Más Cercanos (K-NN) es un método de aprendizaje supervisado no paramétrico. A diferencia de otros algoritmos que construyen una ecuación matemática o un árbol de reglas durante el entrenamiento, K-NN es un algoritmo de tipo <em>lazy learning</em> (aprendizaje perezoso): no “aprende” un modelo en sí, sino que memoriza todo el conjunto de datos de entrenamiento para usarlo como mapa de referencia durante la predicción.</p>
+<section id="fundamento-del-algoritmo" class="level4" data-number="4.3.1.1">
+<h4 data-number="4.3.1.1" class="anchored" data-anchor-id="fundamento-del-algoritmo"><span class="header-section-number">4.3.1.1</span> Fundamento del Algoritmo</h4>
+<p>Para clasificar a un nuevo corredor (es decir, predecir si sufrirá “El Muro” o no), el algoritmo sigue un proceso estrictamente geométrico:</p>
+<ol type="1">
+<li><p><strong>Cálculo de Distancias:</strong> Mide la distancia matemática entre el nuevo corredor y todos los demás corredores presentes en el conjunto de entrenamiento. La métrica por defecto es la Distancia Euclidiana en un espacio n-dimensional: <span class="math display">\[d(x, y) = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}\]</span></p></li>
+<li><p><strong>Selección de la Vecindad (K):</strong> Identifica a los <span class="math inline">\(K\)</span> corredores del conjunto de entrenamiento que se encuentran a menor distancia del nuevo individuo. El valor <span class="math inline">\(K\)</span> es un hiperparámetro crítico que se debe definir (generalmente un número impar para evitar empates, como 3, 5 o 7).</p></li>
+<li><p><strong>Votación Mayoritaria:</strong> El algoritmo observa la etiqueta real (<code>hit_the_wall</code>) de esos <span class="math inline">\(K\)</span> vecinos más cercanos. La clase mayoritaria entre ellos será la predicción asignada al nuevo corredor.</p></li>
+</ol>
+</section>
+<section id="aplicación-del-algoritmo" class="level4" data-number="4.3.1.2">
+<h4 data-number="4.3.1.2" class="anchored" data-anchor-id="aplicación-del-algoritmo"><span class="header-section-number">4.3.1.2</span> Aplicación del Algoritmo</h4>
+<p>Una vez definido el marco teórico, aplicamos el algoritmo:</p>
+<div id="knn-entrenamiento-supervised" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#1. Definimos las variables que vamos a usar: </span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>variables_usar <span class="op">=</span> [<span class="st">'age'</span>, <span class="st">'5k'</span>, <span class="st">'10k'</span>, <span class="st">'15k'</span>, <span class="st">'20k'</span>, <span class="st">'half'</span>, <span class="st">'temp_mean_c'</span>, <span class="st">'humidity_pct'</span>, <span class="st">'wind_speed_kmh'</span>]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>X_train_knn <span class="op">=</span> X_train[variables_usar]</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>X_test_knn <span class="op">=</span> X_test[variables_usar]</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>X_validation_knn <span class="op">=</span> X_val[variables_usar]</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#2. Las escalamos</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>scaler <span class="op">=</span> StandardScaler()</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>X_train_knn <span class="op">=</span> scaler.fit_transform(X_train_knn)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>X_test_knn <span class="op">=</span> scaler.transform(X_test_knn)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>X_validation_knn <span class="op">=</span> scaler.transform(X_validation_knn)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#3. Entrenamos el algoritmo</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>modelo_clasificacion_knn <span class="op">=</span> KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>modelo_clasificacion_knn.fit(X_train_knn, y_train)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#4. Realizamos la predicción en test</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>predicciones_test <span class="op">=</span> modelo_clasificacion_knn.predict(X_test_knn)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#5. Visualizamos la matriz de confusión</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>tabla_confusion <span class="op">=</span> pd.crosstab(</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    y_test, </span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    predicciones_test, </span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    rownames<span class="op">=</span>[<span class="st">'Realidad (0=No, 1=Sí)'</span>], </span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    colnames<span class="op">=</span>[<span class="st">'Predicción (0=No, 1=Sí)'</span>]</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== MATRIZ DE CONFUSIÓN (K-NN) ===</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabla_confusion)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== EVALUACIÓN DEL MODELO KNN ==="</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Accuracy Global:              </span><span class="sc">{</span>accuracy_score(y_test, predicciones_test)<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recall (Detección del Muro):  </span><span class="sc">{</span>recall_score(y_test, predicciones_test, pos_label <span class="op">=</span> <span class="dv">1</span>)<span class="sc">:.2%}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>=== MATRIZ DE CONFUSIÓN (K-NN) ===
+
+Predicción (0=No, 1=Sí)      0     1
+Realidad (0=No, 1=Sí)               
+0                        10655  1958
+1                         2124  1071
+=== EVALUACIÓN DEL MODELO KNN ===
+Accuracy Global:              74.18%
+Recall (Detección del Muro):  33.52%</code></pre>
+</div>
+</div>
+<p>Comenzamos estableciendo un modelo base utilizando K-NN. Como era de esperar ante un dataset desbalanceado (80/20), el algoritmo basado en distancias fue incapaz de identificar los colapsos, logrando un Recall máximo del 33% asumiendo un riesgo extremo de sobreajuste (<span class="math inline">\(K=1\)</span>). Esto justifica la necesidad de evolucionar hacia algoritmos basados en árboles que permitan un balanceo de pesos matemático.</p>
+</section>
 </section>
 <section id="árbol-de-decisión" class="level3" data-number="4.3.2">
 <h3 data-number="4.3.2" class="anchored" data-anchor-id="árbol-de-decisión"><span class="header-section-number">4.3.2</span> Árbol de Decisión</h3>
+<p>El Árbol de Decisión (<em>Decision Tree</em>) es un algoritmo de aprendizaje supervisado no paramétrico que construye un modelo predictivo basado en una secuencia jerárquica de reglas lógicas. A diferencia de métodos basados en distancias (como K-NN) o en ecuaciones algebraicas (como la Regresión Lineal), el árbol divide el conjunto de datos iterativamente realizando preguntas binarias sobre las variables predictoras.</p>
+<section id="funcionamiento-y-criterio-de-corte" class="level4" data-number="4.3.2.1">
+<h4 data-number="4.3.2.1" class="anchored" data-anchor-id="funcionamiento-y-criterio-de-corte"><span class="header-section-number">4.3.2.1</span> Funcionamiento y Criterio de Corte</h4>
+<p>En cada nodo, el algoritmo evalúa todas las características disponibles (edad, ritmos, país, etc.) y selecciona el punto de corte que mejor separa a los corredores según la variable objetivo (<code>hit_the_wall</code>). Para medir la calidad de esta separación, utiliza métricas matemáticas de “pureza”, siendo la más común el <strong>Índice de Impureza de Gini</strong>. El proceso se ramifica de forma descendente hasta alcanzar un criterio de parada definido por el analista (por ejemplo, una profundidad máxima, <code>max_depth</code>) para evitar el sobreajuste (<em>overfitting</em>).</p>
 </section>
-<section id="random-forest" class="level3" data-number="4.3.3">
-<h3 data-number="4.3.3" class="anchored" data-anchor-id="random-forest"><span class="header-section-number">4.3.3</span> Random Forest</h3>
+</section>
+<section id="aplicación-del-algoritmo-1" class="level3" data-number="4.3.3">
+<h3 data-number="4.3.3" class="anchored" data-anchor-id="aplicación-del-algoritmo-1"><span class="header-section-number">4.3.3</span> Aplicación del Algoritmo</h3>
+<p>A continuación, se realiza el algoritmo. La idea será coger las variables categóricas como el país y binarizarlas, en vez de dejar todos los posibles países, ya que son muchos. De esta manera, logramos una regla lógica de si el corredor es o no de los estados unidos. Tras ello, entrenamos el algoritmo:</p>
+<div id="entrenamiento-arbol-clasificacion" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>X_train_tree <span class="op">=</span> X_train.copy()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>X_test_tree <span class="op">=</span> X_test.copy()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>X_val_tree <span class="op">=</span> X_val.copy()</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Binarizamos la variable país</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>X_train_tree[<span class="st">'is_USA'</span>] <span class="op">=</span> (X_train_tree[<span class="st">'country_residence'</span>] <span class="op">==</span> <span class="st">'USA'</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>X_test_tree[<span class="st">'is_USA'</span>]  <span class="op">=</span> (X_test_tree[<span class="st">'country_residence'</span>] <span class="op">==</span> <span class="st">'USA'</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>X_val_tree[<span class="st">'is_USA'</span>]  <span class="op">=</span> (X_test_tree[<span class="st">'country_residence'</span>] <span class="op">==</span> <span class="st">'USA'</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Convertimos Género (1 = Mujer, 0 = Hombre)</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>X_train_tree[<span class="st">'is_Female'</span>] <span class="op">=</span> (X_train_tree[<span class="st">'gender'</span>] <span class="op">==</span> <span class="st">'F'</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>X_test_tree[<span class="st">'is_Female'</span>]  <span class="op">=</span> (X_test_tree[<span class="st">'gender'</span>] <span class="op">==</span> <span class="st">'F'</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>X_val_tree[<span class="st">'is_Female'</span>]  <span class="op">=</span> (X_test_tree[<span class="st">'gender'</span>] <span class="op">==</span> <span class="st">'F'</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>columnas_a_borrar <span class="op">=</span> [<span class="st">'country_residence'</span>, <span class="st">'gender'</span>]</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>X_train_tree.drop(columns<span class="op">=</span>columnas_a_borrar, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>X_test_tree.drop(columns<span class="op">=</span>columnas_a_borrar, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>X_val_tree.drop(columns<span class="op">=</span>columnas_a_borrar, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>modelo_clasificacion_arbol <span class="op">=</span> DecisionTreeClassifier(</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    class_weight<span class="op">=</span><span class="st">'balanced'</span>, </span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    max_depth<span class="op">=</span><span class="dv">7</span>,             </span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    random_state<span class="op">=</span><span class="dv">42</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>modelo_clasificacion_arbol.fit(X_train_tree, y_train)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>predicciones_arbol <span class="op">=</span> modelo_clasificacion_arbol.predict(X_test_tree)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>tabla_arbol <span class="op">=</span> pd.crosstab(</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    y_test, predicciones_arbol, </span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    rownames<span class="op">=</span>[<span class="st">'Realidad (0=No, 1=Sí)'</span>], colnames<span class="op">=</span>[<span class="st">'Predicción (0=No, 1=Sí)'</span>]</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>acc_arbol <span class="op">=</span> accuracy_score(y_test, predicciones_arbol)</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>rec_arbol <span class="op">=</span> recall_score(y_test, predicciones_arbol, pos_label<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== MATRIZ DE CONFUSIÓN (ÁRBOL BALANCEADO) ===</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabla_arbol)</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">=== EVALUACIÓN ==="</span>)</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Accuracy Global:              </span><span class="sc">{</span>acc_arbol<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recall (Detección del Muro):  </span><span class="sc">{</span>rec_arbol<span class="sc">:.2%}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>=== MATRIZ DE CONFUSIÓN (ÁRBOL BALANCEADO) ===
+
+Predicción (0=No, 1=Sí)     0     1
+Realidad (0=No, 1=Sí)              
+0                        7699  4914
+1                         888  2307
+
+=== EVALUACIÓN ===
+Accuracy Global:              63.30%
+Recall (Detección del Muro):  72.21%</code></pre>
+</div>
+</div>
+<p>Este modelo, en comparación con el anterior, tiene mucha más <em>Recall</em> pero menos <em>Accuracy</em>.</p>
+</section>
+<section id="random-forest" class="level3" data-number="4.3.4">
+<h3 data-number="4.3.4" class="anchored" data-anchor-id="random-forest"><span class="header-section-number">4.3.4</span> Random Forest</h3>
+<p>(hacer el modelo)</p>
+</section>
+<section id="selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación" class="level3" data-number="4.3.5">
+<h3 data-number="4.3.5" class="anchored" data-anchor-id="selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación"><span class="header-section-number">4.3.5</span> Selección del mejor modelo y predicción en el conjunto de Validación</h3>
+<p>Tras haber entrenado y probado en test los 3 modelos anteriores, el que obtiene mejores resultados es el modelo de XXXXXXX</p>
+<p>Por ello, se realizan las predicciones en el conjunto de validation:</p>
+<div id="validacion-clasificacion-supervised" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#1. Elegimos el modelo entre los tres, modelo_clasificacion_arbol, rforest o knn</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>predicciones_validacion <span class="op">=</span> modelo_clasificacion_arbol.predict(X_val_tree)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>tabla_arbol <span class="op">=</span> pd.crosstab(</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    y_test, predicciones_validacion, </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    rownames<span class="op">=</span>[<span class="st">'Realidad (0=No, 1=Sí)'</span>], colnames<span class="op">=</span>[<span class="st">'Predicción (0=No, 1=Sí)'</span>]</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>acc_arbol <span class="op">=</span> accuracy_score(y_test, predicciones_validacion)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>rec_arbol <span class="op">=</span> recall_score(y_test, predicciones_validacion, pos_label<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== MATRIZ DE CONFUSIÓN (ÁRBOL BALANCEADO) ===</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabla_arbol)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">=== EVALUACIÓN ==="</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Accuracy Global:              </span><span class="sc">{</span>acc_arbol<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recall (Detección del Muro):  </span><span class="sc">{</span>rec_arbol<span class="sc">:.2%}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>=== MATRIZ DE CONFUSIÓN (ÁRBOL BALANCEADO) ===
+
+Predicción (0=No, 1=Sí)     0     1
+Realidad (0=No, 1=Sí)              
+0                        5353  7260
+1                        1313  1882
+
+=== EVALUACIÓN ===
+Accuracy Global:              45.77%
+Recall (Detección del Muro):  58.90%</code></pre>
+</div>
+</div>
 </section>
 </section>
 <section id="problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km" class="level2" data-number="4.4">
 <h2 data-number="4.4" class="anchored" data-anchor-id="problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km"><span class="header-section-number">4.4</span> Problema de regresión. Predicción de tiempo final según sus datos hasta el parcial 35km</h2>
+<p>El objetivo de esta sección es predecir los tiempos finales de los corredores con los datos hasta el parcial de 35km. Por lo tanto,</p>
 
 
 </section>
