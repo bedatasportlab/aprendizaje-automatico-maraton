@@ -2,16 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.7.32">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>4&nbsp; Aprendizaje Supervisado – Análisis Predictivo: Maratón de Boston (2015-2017)</title>
 <style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -61,7 +58,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -75,10 +72,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-9e3e5b9121e68b3f077afb32f2c64d95.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -106,9 +103,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -121,7 +124,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+      if (mathElements[i].tagName == "SPAN") {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -217,11 +220,22 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#k-vecinos-más-cercanos-k-nn" id="toc-k-vecinos-más-cercanos-k-nn" class="nav-link" data-scroll-target="#k-vecinos-más-cercanos-k-nn"><span class="header-section-number">4.3.1</span> K-Vecinos Más Cercanos (K-NN)</a></li>
   <li><a href="#árbol-de-decisión" id="toc-árbol-de-decisión" class="nav-link" data-scroll-target="#árbol-de-decisión"><span class="header-section-number">4.3.2</span> Árbol de Decisión</a></li>
-  <li><a href="#aplicación-del-algoritmo-1" id="toc-aplicación-del-algoritmo-1" class="nav-link" data-scroll-target="#aplicación-del-algoritmo-1"><span class="header-section-number">4.3.3</span> Aplicación del Algoritmo</a></li>
-  <li><a href="#random-forest" id="toc-random-forest" class="nav-link" data-scroll-target="#random-forest"><span class="header-section-number">4.3.4</span> Random Forest</a></li>
-  <li><a href="#selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación" id="toc-selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación" class="nav-link" data-scroll-target="#selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación"><span class="header-section-number">4.3.5</span> Selección del mejor modelo y predicción en el conjunto de Validación</a></li>
+  <li><a href="#random-forest" id="toc-random-forest" class="nav-link" data-scroll-target="#random-forest"><span class="header-section-number">4.3.3</span> Random Forest</a></li>
+  <li><a href="#selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación" id="toc-selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación" class="nav-link" data-scroll-target="#selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación"><span class="header-section-number">4.3.4</span> Selección del mejor modelo y predicción en el conjunto de Validación</a></li>
   </ul></li>
-  <li><a href="#problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km" id="toc-problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km" class="nav-link" data-scroll-target="#problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km"><span class="header-section-number">4.4</span> Problema de regresión. Predicción de tiempo final según sus datos hasta el parcial 35km</a></li>
+  <li><a href="#problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km" id="toc-problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km" class="nav-link" data-scroll-target="#problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km"><span class="header-section-number">4.4</span> Problema de regresión. Predicción de tiempo final según sus datos hasta el parcial 35km</a>
+  <ul class="collapse">
+  <li><a href="#planteamiento-del-problema-y-selección-de-variables" id="toc-planteamiento-del-problema-y-selección-de-variables" class="nav-link" data-scroll-target="#planteamiento-del-problema-y-selección-de-variables"><span class="header-section-number">4.4.1</span> Planteamiento del problema y selección de variables</a></li>
+  <li><a href="#distribución-de-la-variable-objetivo" id="toc-distribución-de-la-variable-objetivo" class="nav-link" data-scroll-target="#distribución-de-la-variable-objetivo"><span class="header-section-number">4.4.2</span> Distribución de la variable objetivo</a></li>
+  <li><a href="#preprocesamiento-para-modelos-lineales" id="toc-preprocesamiento-para-modelos-lineales" class="nav-link" data-scroll-target="#preprocesamiento-para-modelos-lineales"><span class="header-section-number">4.4.3</span> Preprocesamiento para modelos lineales</a></li>
+  <li><a href="#métricas-de-evaluación-en-regresión" id="toc-métricas-de-evaluación-en-regresión" class="nav-link" data-scroll-target="#métricas-de-evaluación-en-regresión"><span class="header-section-number">4.4.4</span> Métricas de evaluación en regresión</a></li>
+  <li><a href="#glm-1-regresión-lineal" id="toc-glm-1-regresión-lineal" class="nav-link" data-scroll-target="#glm-1-regresión-lineal"><span class="header-section-number">4.4.5</span> GLM 1: Regresión Lineal</a></li>
+  <li><a href="#glm-2-ridge-regression" id="toc-glm-2-ridge-regression" class="nav-link" data-scroll-target="#glm-2-ridge-regression"><span class="header-section-number">4.4.6</span> GLM 2: Ridge Regression</a></li>
+  <li><a href="#glm-3-lasso-regression" id="toc-glm-3-lasso-regression" class="nav-link" data-scroll-target="#glm-3-lasso-regression"><span class="header-section-number">4.4.7</span> GLM 3: Lasso Regression</a></li>
+  <li><a href="#interpretación-de-coeficientes" id="toc-interpretación-de-coeficientes" class="nav-link" data-scroll-target="#interpretación-de-coeficientes"><span class="header-section-number">4.4.8</span> Interpretación de coeficientes</a></li>
+  <li><a href="#selección-del-mejor-glm-y-validación-final" id="toc-selección-del-mejor-glm-y-validación-final" class="nav-link" data-scroll-target="#selección-del-mejor-glm-y-validación-final"><span class="header-section-number">4.4.9</span> Selección del mejor GLM y validación final</a></li>
+  <li><a href="#análisis-de-errores-en-validación" id="toc-análisis-de-errores-en-validación" class="nav-link" data-scroll-target="#análisis-de-errores-en-validación"><span class="header-section-number">4.4.10</span> Análisis de errores en validación</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -258,7 +272,7 @@ window.Quarto = {
 <div id="importar-librerias-supervised" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Ver código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
@@ -291,9 +305,10 @@ window.Quarto = {
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. MÉTRICAS DE EVALUACIÓN (Para ponerles nota a los modelos)</span></span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># ==============================================================================</span></span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Para Clasificación:</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score, recall_score, classification_report, confusion_matrix, roc_auc_score</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score, recall_score, classification_report, confusion_matrix, roc_auc_score, roc_curve</span>
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Para Regresión:</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_absolute_error, mean_squared_error, r2_score</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_absolute_error, mean_squared_error, r2_score</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -303,11 +318,11 @@ window.Quarto = {
 <div id="carga-datos-supervised" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Ver código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Si no os deja cargarlo al trabajar (no al hacer quarto render), en la consola importar os y dejais como directorio de trabajo la carpeta de notebooks</span></span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Si no os deja cargarlo al trabajar (no al hacer quarto render), en la consola importar os y dejais como directorio de trabajo la carpeta de notebooks</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># import os</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># os.getcwd (y si no está en notebook, poneis en la consola os.chdir("notebooks"))</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>df_boston <span class="op">=</span> pd.read_parquet(<span class="st">"../data/processed/boston_post_eda.parquet"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>df_boston <span class="op">=</span> pd.read_parquet(<span class="st">"../data/processed/boston_post_eda.parquet"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -319,7 +334,7 @@ window.Quarto = {
 <div id="particion-clasificacion-supervised" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Ver código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. SELECCIÓN DE VARIABLES</span></span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. SELECCIÓN DE VARIABLES</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>features_todas <span class="op">=</span> [</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'age'</span>, <span class="st">'gender'</span>, <span class="st">'country_residence'</span>, </span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'5k'</span>, <span class="st">'10k'</span>, <span class="st">'15k'</span>, <span class="st">'20k'</span>, <span class="st">'half'</span>, </span>
@@ -340,7 +355,7 @@ window.Quarto = {
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Segundo corte: Mitad del resto para Validación (20%) y mitad para Test (20%)</span></span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>X_val, X_test, y_val, y_test <span class="op">=</span> train_test_split(</span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    X_temp, y_temp, test_size<span class="op">=</span><span class="fl">0.50</span>, random_state<span class="op">=</span><span class="dv">42</span>, stratify<span class="op">=</span>y_temp</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Una vez tenemos nuestros datos ya divididos, entrenaremos nuestros modelos en <em>Train</em>, los evaluaremos en <em>Test</em> y cuando tengamos todos los posibles modelos, elegiremos uno para probarlo en <em>Validation</em>.</p>
@@ -349,6 +364,12 @@ window.Quarto = {
 <li><strong>Accuracy</strong>: Una medida de cómo fallamos en general</li>
 <li><strong>Recall</strong>: Ya que decirle a un atleta que no va a petar cuando en realidad peta es un error que puede costar muy caro, nuestro objetivo será maximizar dicha métrica, es decir, de todos los que realmente petan, ¿cuántos caza el modelo?</li>
 </ul>
+<p>Conviene distinguir entre dos tipos de medidas. Por un lado están los <strong>criterios internos de entrenamiento</strong>, como el índice de Gini o la entropía, que ayudan a un árbol a decidir qué cortes hacer mientras aprende. Por otro lado están las <strong>métricas externas de evaluación</strong>, como la <em>Accuracy</em> y el <em>Recall</em>, que se calculan después de entrenar el modelo sobre datos que no se han usado para ajustar sus reglas.</p>
+<p>En nuestro caso, la <em>Accuracy</em> equivale al porcentaje total de predicciones correctas. Su complementario sería el <strong>error rate</strong> o tasa de error global:</p>
+<p><span class="math display">\[Error\ Rate = 1 - Accuracy\]</span></p>
+<p>Sin embargo, al tener una variable objetivo desbalanceada, esta tasa de error puede ser engañosa. Un modelo podría acertar muchos casos simplemente prediciendo casi siempre que el corredor no choca con el muro. Por eso incorporamos el <em>Recall</em> de la clase positiva, que mide específicamente qué proporción de los corredores que realmente sufren el muro son detectados por el modelo:</p>
+<p><span class="math display">\[Recall = \frac{TP}{TP + FN}\]</span></p>
+<p>Donde <code>TP</code> son los corredores que realmente chocan con el muro y el modelo detecta correctamente, y <code>FN</code> son los corredores que chocan con el muro pero el modelo no identifica. En este problema, reducir los <code>FN</code> es especialmente importante.</p>
 <section id="k-vecinos-más-cercanos-k-nn" class="level3" data-number="4.3.1">
 <h3 data-number="4.3.1" class="anchored" data-anchor-id="k-vecinos-más-cercanos-k-nn"><span class="header-section-number">4.3.1</span> K-Vecinos Más Cercanos (K-NN)</h3>
 <p>El algoritmo de K-Vecinos Más Cercanos (K-NN) es un método de aprendizaje supervisado no paramétrico. A diferencia de otros algoritmos que construyen una ecuación matemática o un árbol de reglas durante el entrenamiento, K-NN es un algoritmo de tipo <em>lazy learning</em> (aprendizaje perezoso): no “aprende” un modelo en sí, sino que memoriza todo el conjunto de datos de entrenamiento para usarlo como mapa de referencia durante la predicción.</p>
@@ -367,7 +388,7 @@ window.Quarto = {
 <div id="knn-entrenamiento-supervised" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Ver código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#1. Definimos las variables que vamos a usar: </span></span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#1. Definimos las variables que vamos a usar: </span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>variables_usar <span class="op">=</span> [<span class="st">'age'</span>, <span class="st">'5k'</span>, <span class="st">'10k'</span>, <span class="st">'15k'</span>, <span class="st">'20k'</span>, <span class="st">'half'</span>, <span class="st">'temp_mean_c'</span>, <span class="st">'humidity_pct'</span>, <span class="st">'wind_speed_kmh'</span>]</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>X_train_knn <span class="op">=</span> X_train[variables_usar]</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>X_test_knn <span class="op">=</span> X_test[variables_usar]</span>
@@ -381,22 +402,25 @@ window.Quarto = {
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>modelo_clasificacion_knn <span class="op">=</span> KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>modelo_clasificacion_knn.fit(X_train_knn, y_train)</span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#4. Realizamos la predicción en test</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>predicciones_test <span class="op">=</span> modelo_clasificacion_knn.predict(X_test_knn)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>predicciones_knn <span class="op">=</span> modelo_clasificacion_knn.predict(X_test_knn)</span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#5. Visualizamos la matriz de confusión</span></span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>tabla_confusion <span class="op">=</span> pd.crosstab(</span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    y_test, </span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    predicciones_test, </span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    predicciones_knn,</span>
 <span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    rownames<span class="op">=</span>[<span class="st">'Realidad (0=No, 1=Sí)'</span>], </span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    colnames<span class="op">=</span>[<span class="st">'Predicción (0=No, 1=Sí)'</span>]</span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== MATRIZ DE CONFUSIÓN (K-NN) ===</span><span class="ch">\n</span><span class="st">"</span>)</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabla_confusion)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>acc_knn <span class="op">=</span> accuracy_score(y_test, predicciones_knn)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>rec_knn <span class="op">=</span> recall_score(y_test, predicciones_knn, pos_label<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== EVALUACIÓN DEL MODELO KNN ==="</span>)</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Accuracy Global:              </span><span class="sc">{</span>accuracy_score(y_test, predicciones_test)<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recall (Detección del Muro):  </span><span class="sc">{</span>recall_score(y_test, predicciones_test, pos_label <span class="op">=</span> <span class="dv">1</span>)<span class="sc">:.2%}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== MATRIZ DE CONFUSIÓN (K-NN) ===</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabla_confusion)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== EVALUACIÓN DEL MODELO KNN ==="</span>)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Accuracy Global:              </span><span class="sc">{</span>acc_knn<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recall (Detección del Muro):  </span><span class="sc">{</span>rec_knn<span class="sc">:.2%}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== MATRIZ DE CONFUSIÓN (K-NN) ===
@@ -420,25 +444,38 @@ Recall (Detección del Muro):  33.52%</code></pre>
 <h4 data-number="4.3.2.1" class="anchored" data-anchor-id="funcionamiento-y-criterio-de-corte"><span class="header-section-number">4.3.2.1</span> Funcionamiento y Criterio de Corte</h4>
 <p>En cada nodo, el algoritmo evalúa todas las características disponibles (edad, ritmos, país, etc.) y selecciona el punto de corte que mejor separa a los corredores según la variable objetivo (<code>hit_the_wall</code>). Para medir la calidad de esta separación, utiliza métricas matemáticas de “pureza”, siendo la más común el <strong>Índice de Impureza de Gini</strong>. El proceso se ramifica de forma descendente hasta alcanzar un criterio de parada definido por el analista (por ejemplo, una profundidad máxima, <code>max_depth</code>) para evitar el sobreajuste (<em>overfitting</em>).</p>
 </section>
+<section id="índice-de-gini-entropía-y-error-de-clasificación" class="level4" data-number="4.3.2.2">
+<h4 data-number="4.3.2.2" class="anchored" data-anchor-id="índice-de-gini-entropía-y-error-de-clasificación"><span class="header-section-number">4.3.2.2</span> Índice de Gini, Entropía y Error de Clasificación</h4>
+<p>Cuando un árbol prueba una posible división, no mira solo si acierta o falla en ese instante. Lo que intenta medir es si, después del corte, los nodos resultantes quedan más “puros”, es decir, con observaciones cada vez más concentradas en una única clase. Para ello se utilizan medidas de impureza.</p>
+<p>Si en un nodo hay <span class="math inline">\(K\)</span> clases y <span class="math inline">\(p_k\)</span> representa la proporción de observaciones de la clase <span class="math inline">\(k\)</span>, el índice de Gini se calcula como:</p>
+<p><span class="math display">\[Gini = 1 - \sum_{k=1}^{K} p_k^2\]</span></p>
+<p>Un nodo completamente puro tiene Gini igual a 0, porque todas las observaciones pertenecen a la misma clase. En cambio, si en un problema binario el nodo está dividido al 50%-50%, la impureza es alta, porque el árbol todavía no ha conseguido separar bien las clases.</p>
+<p>La <strong>entropía</strong> mide una idea muy parecida, pero desde el punto de vista de la información o incertidumbre:</p>
+<p><span class="math display">\[Entropia = - \sum_{k=1}^{K} p_k \log_2(p_k)\]</span></p>
+<p>También vale 0 en nodos puros y aumenta cuando las clases están mezcladas. En la práctica, Gini y entropía suelen producir árboles bastante similares. Gini es algo más simple de calcular y es el criterio por defecto en muchos árboles de clasificación; la entropía penaliza de forma algo más intensa ciertos nodos con mezcla de clases y se interpreta como ganancia de información.</p>
+<p>Otra posibilidad sería usar el <strong>error de clasificación</strong>:</p>
+<p><span class="math display">\[Error = 1 - \max(p_k)\]</span></p>
+<p>Este indicador mira únicamente la clase mayoritaria del nodo. Por ejemplo, si un nodo tiene 60% de corredores que no chocan con el muro y 40% que sí chocan, su error sería 40%. El problema es que esta medida es menos sensible a pequeñas mejoras en la composición del nodo. Por eso suele ser menos útil para decidir los cortes durante el crecimiento del árbol, aunque puede ser intuitiva para explicar el error final de clasificación.</p>
+<p>En este trabajo utilizamos <code>criterion='gini'</code> porque es un criterio robusto, eficiente y adecuado para construir árboles de clasificación. Además, combinado con <code>class_weight='balanced'</code>, permite que el árbol no ignore la clase minoritaria (<code>hit_the_wall=1</code>) durante el aprendizaje.</p>
 </section>
-<section id="aplicación-del-algoritmo-1" class="level3" data-number="4.3.3">
-<h3 data-number="4.3.3" class="anchored" data-anchor-id="aplicación-del-algoritmo-1"><span class="header-section-number">4.3.3</span> Aplicación del Algoritmo</h3>
+<section id="aplicación-del-algoritmo-1" class="level4" data-number="4.3.2.3">
+<h4 data-number="4.3.2.3" class="anchored" data-anchor-id="aplicación-del-algoritmo-1"><span class="header-section-number">4.3.2.3</span> Aplicación del Algoritmo</h4>
 <p>A continuación, se realiza el algoritmo. La idea será coger las variables categóricas como el país y binarizarlas, en vez de dejar todos los posibles países, ya que son muchos. De esta manera, logramos una regla lógica de si el corredor es o no de los estados unidos. Tras ello, entrenamos el algoritmo:</p>
 <div id="entrenamiento-arbol-clasificacion" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Ver código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>X_train_tree <span class="op">=</span> X_train.copy()</span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>X_train_tree <span class="op">=</span> X_train.copy()</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>X_test_tree <span class="op">=</span> X_test.copy()</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>X_val_tree <span class="op">=</span> X_val.copy()</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Binarizamos la variable país</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>X_train_tree[<span class="st">'is_USA'</span>] <span class="op">=</span> (X_train_tree[<span class="st">'country_residence'</span>] <span class="op">==</span> <span class="st">'USA'</span>).astype(<span class="bu">int</span>)</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>X_test_tree[<span class="st">'is_USA'</span>]  <span class="op">=</span> (X_test_tree[<span class="st">'country_residence'</span>] <span class="op">==</span> <span class="st">'USA'</span>).astype(<span class="bu">int</span>)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>X_val_tree[<span class="st">'is_USA'</span>]  <span class="op">=</span> (X_test_tree[<span class="st">'country_residence'</span>] <span class="op">==</span> <span class="st">'USA'</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>X_val_tree[<span class="st">'is_USA'</span>]  <span class="op">=</span> (X_val_tree[<span class="st">'country_residence'</span>] <span class="op">==</span> <span class="st">'USA'</span>).astype(<span class="bu">int</span>)</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Convertimos Género (1 = Mujer, 0 = Hombre)</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>X_train_tree[<span class="st">'is_Female'</span>] <span class="op">=</span> (X_train_tree[<span class="st">'gender'</span>] <span class="op">==</span> <span class="st">'F'</span>).astype(<span class="bu">int</span>)</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>X_test_tree[<span class="st">'is_Female'</span>]  <span class="op">=</span> (X_test_tree[<span class="st">'gender'</span>] <span class="op">==</span> <span class="st">'F'</span>).astype(<span class="bu">int</span>)</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>X_val_tree[<span class="st">'is_Female'</span>]  <span class="op">=</span> (X_test_tree[<span class="st">'gender'</span>] <span class="op">==</span> <span class="st">'F'</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>X_val_tree[<span class="st">'is_Female'</span>]  <span class="op">=</span> (X_val_tree[<span class="st">'gender'</span>] <span class="op">==</span> <span class="st">'F'</span>).astype(<span class="bu">int</span>)</span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>columnas_a_borrar <span class="op">=</span> [<span class="st">'country_residence'</span>, <span class="st">'gender'</span>]</span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>X_train_tree.drop(columns<span class="op">=</span>columnas_a_borrar, inplace<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>X_test_tree.drop(columns<span class="op">=</span>columnas_a_borrar, inplace<span class="op">=</span><span class="va">True</span>)</span>
@@ -446,28 +483,29 @@ Recall (Detección del Muro):  33.52%</code></pre>
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>modelo_clasificacion_arbol <span class="op">=</span> DecisionTreeClassifier(</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    class_weight<span class="op">=</span><span class="st">'balanced'</span>, </span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    max_depth<span class="op">=</span><span class="dv">7</span>,             </span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    random_state<span class="op">=</span><span class="dv">42</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>modelo_clasificacion_arbol.fit(X_train_tree, y_train)</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>predicciones_arbol <span class="op">=</span> modelo_clasificacion_arbol.predict(X_test_tree)</span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>tabla_arbol <span class="op">=</span> pd.crosstab(</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    y_test, predicciones_arbol, </span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    rownames<span class="op">=</span>[<span class="st">'Realidad (0=No, 1=Sí)'</span>], colnames<span class="op">=</span>[<span class="st">'Predicción (0=No, 1=Sí)'</span>]</span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>acc_arbol <span class="op">=</span> accuracy_score(y_test, predicciones_arbol)</span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>rec_arbol <span class="op">=</span> recall_score(y_test, predicciones_arbol, pos_label<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== MATRIZ DE CONFUSIÓN (ÁRBOL BALANCEADO) ===</span><span class="ch">\n</span><span class="st">"</span>)</span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabla_arbol)</span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">=== EVALUACIÓN ==="</span>)</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Accuracy Global:              </span><span class="sc">{</span>acc_arbol<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recall (Detección del Muro):  </span><span class="sc">{</span>rec_arbol<span class="sc">:.2%}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    criterion<span class="op">=</span><span class="st">'gini'</span>,</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    class_weight<span class="op">=</span><span class="st">'balanced'</span>, </span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    max_depth<span class="op">=</span><span class="dv">7</span>,             </span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    random_state<span class="op">=</span><span class="dv">42</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>modelo_clasificacion_arbol.fit(X_train_tree, y_train)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>predicciones_arbol <span class="op">=</span> modelo_clasificacion_arbol.predict(X_test_tree)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>tabla_arbol <span class="op">=</span> pd.crosstab(</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    y_test, predicciones_arbol, </span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    rownames<span class="op">=</span>[<span class="st">'Realidad (0=No, 1=Sí)'</span>], colnames<span class="op">=</span>[<span class="st">'Predicción (0=No, 1=Sí)'</span>]</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>acc_arbol <span class="op">=</span> accuracy_score(y_test, predicciones_arbol)</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>rec_arbol <span class="op">=</span> recall_score(y_test, predicciones_arbol, pos_label<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== MATRIZ DE CONFUSIÓN (ÁRBOL BALANCEADO) ===</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabla_arbol)</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">=== EVALUACIÓN ==="</span>)</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Accuracy Global:              </span><span class="sc">{</span>acc_arbol<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recall (Detección del Muro):  </span><span class="sc">{</span>rec_arbol<span class="sc">:.2%}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== MATRIZ DE CONFUSIÓN (ÁRBOL BALANCEADO) ===
@@ -483,55 +521,1176 @@ Recall (Detección del Muro):  72.21%</code></pre>
 </div>
 </div>
 <p>Este modelo, en comparación con el anterior, tiene mucha más <em>Recall</em> pero menos <em>Accuracy</em>.</p>
+<p>La preparación de variables del árbol se ha mantenido sencilla e interpretable:</p>
+<ul>
+<li><code>age</code>, los parciales hasta la media maratón (<code>5k</code>, <code>10k</code>, <code>15k</code>, <code>20k</code>, <code>half</code>) y las variables meteorológicas se usan directamente como variables numéricas.</li>
+<li><code>country_residence</code> se transforma en <code>is_USA</code>, una variable binaria que vale 1 si el corredor reside en Estados Unidos y 0 en caso contrario. Así evitamos introducir un número muy alto de categorías.</li>
+<li><code>gender</code> se transforma en <code>is_Female</code>, que vale 1 para mujeres y 0 para hombres.</li>
+<li>No se escala ninguna variable porque los árboles no se basan en distancias, sino en cortes del tipo <code>variable &lt;= umbral</code>.</li>
+</ul>
+<p>En cuanto a los parámetros del modelo:</p>
+<ul>
+<li><code>class_weight='balanced'</code> compensa el desbalanceo de <code>hit_the_wall</code>, dando más peso a la clase minoritaria.</li>
+<li><code>criterion='gini'</code> define que los cortes se eligen minimizando la impureza de Gini.</li>
+<li><code>max_depth=7</code> limita la profundidad del árbol. Es una forma de controlar el sobreajuste: si el árbol creciera sin límite podría aprender reglas demasiado específicas del conjunto de entrenamiento.</li>
+<li><code>random_state=42</code> fija la semilla aleatoria para que los resultados sean reproducibles.</li>
+</ul>
 </section>
-<section id="random-forest" class="level3" data-number="4.3.4">
-<h3 data-number="4.3.4" class="anchored" data-anchor-id="random-forest"><span class="header-section-number">4.3.4</span> Random Forest</h3>
-<p>(hacer el modelo)</p>
 </section>
-<section id="selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación" class="level3" data-number="4.3.5">
-<h3 data-number="4.3.5" class="anchored" data-anchor-id="selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación"><span class="header-section-number">4.3.5</span> Selección del mejor modelo y predicción en el conjunto de Validación</h3>
-<p>Tras haber entrenado y probado en test los 3 modelos anteriores, el que obtiene mejores resultados es el modelo de XXXXXXX</p>
-<p>Por ello, se realizan las predicciones en el conjunto de validation:</p>
-<div id="validacion-clasificacion-supervised" class="cell" data-execution_count="8">
+<section id="random-forest" class="level3" data-number="4.3.3">
+<h3 data-number="4.3.3" class="anchored" data-anchor-id="random-forest"><span class="header-section-number">4.3.3</span> Random Forest</h3>
+<p>El algoritmo <strong>Random Forest</strong> es una extensión natural del Árbol de Decisión. En lugar de entrenar un único árbol, construye muchos árboles distintos y combina sus predicciones mediante votación mayoritaria. Cada árbol se entrena con una muestra aleatoria del conjunto de entrenamiento y, además, en cada corte solo considera una parte de las variables disponibles. Esta doble aleatoriedad hace que los árboles sean diferentes entre sí y reduce la varianza del modelo final.</p>
+<p>La intuición es sencilla: un único árbol puede ser muy sensible a pequeñas variaciones en los datos, mientras que un bosque de árboles suele ser más estable. Para este problema mantenemos el mismo preprocesamiento usado en el árbol individual, ya que Random Forest también trabaja bien con variables no escaladas y con variables binarias creadas a partir de categorías.</p>
+<section id="aplicación-del-algoritmo-2" class="level4" data-number="4.3.3.1">
+<h4 data-number="4.3.3.1" class="anchored" data-anchor-id="aplicación-del-algoritmo-2"><span class="header-section-number">4.3.3.1</span> Aplicación del Algoritmo</h4>
+<div id="cell-entrenamiento-random-forest-clasificacion" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Ver código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#1. Elegimos el modelo entre los tres, modelo_clasificacion_arbol, rforest o knn</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>predicciones_validacion <span class="op">=</span> modelo_clasificacion_arbol.predict(X_val_tree)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>tabla_arbol <span class="op">=</span> pd.crosstab(</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    y_test, predicciones_validacion, </span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    rownames<span class="op">=</span>[<span class="st">'Realidad (0=No, 1=Sí)'</span>], colnames<span class="op">=</span>[<span class="st">'Predicción (0=No, 1=Sí)'</span>]</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>acc_arbol <span class="op">=</span> accuracy_score(y_test, predicciones_validacion)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>rec_arbol <span class="op">=</span> recall_score(y_test, predicciones_validacion, pos_label<span class="op">=</span><span class="dv">1</span>)</span>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>modelo_clasificacion_rf <span class="op">=</span> RandomForestClassifier(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    n_estimators<span class="op">=</span><span class="dv">300</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    criterion<span class="op">=</span><span class="st">'gini'</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    class_weight<span class="op">=</span><span class="st">'balanced_subsample'</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    max_depth<span class="op">=</span><span class="dv">7</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    max_features<span class="op">=</span><span class="st">'sqrt'</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    min_samples_leaf<span class="op">=</span><span class="dv">20</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    random_state<span class="op">=</span><span class="dv">42</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    n_jobs<span class="op">=-</span><span class="dv">1</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== MATRIZ DE CONFUSIÓN (ÁRBOL BALANCEADO) ===</span><span class="ch">\n</span><span class="st">"</span>)</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabla_arbol)</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">=== EVALUACIÓN ==="</span>)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Accuracy Global:              </span><span class="sc">{</span>acc_arbol<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recall (Detección del Muro):  </span><span class="sc">{</span>rec_arbol<span class="sc">:.2%}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>modelo_clasificacion_rf.fit(X_train_tree, y_train)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>predicciones_rf <span class="op">=</span> modelo_clasificacion_rf.predict(X_test_tree)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>tabla_rf <span class="op">=</span> pd.crosstab(</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    y_test, predicciones_rf,</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    rownames<span class="op">=</span>[<span class="st">'Realidad (0=No, 1=Sí)'</span>],</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    colnames<span class="op">=</span>[<span class="st">'Predicción (0=No, 1=Sí)'</span>]</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>acc_rf <span class="op">=</span> accuracy_score(y_test, predicciones_rf)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>rec_rf <span class="op">=</span> recall_score(y_test, predicciones_rf, pos_label<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>importancias_rf <span class="op">=</span> (</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    pd.DataFrame({</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Variable'</span>: X_train_tree.columns,</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Importancia'</span>: modelo_clasificacion_rf.feature_importances_</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    .sort_values(<span class="st">'Importancia'</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    .reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== MATRIZ DE CONFUSIÓN (RANDOM FOREST BALANCEADO) ===</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabla_rf)</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">=== EVALUACIÓN ==="</span>)</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Accuracy Global:              </span><span class="sc">{</span>acc_rf<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recall (Detección del Muro):  </span><span class="sc">{</span>rec_rf<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">=== VARIABLES MÁS IMPORTANTES ==="</span>)</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>display(importancias_rf.head(<span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>=== MATRIZ DE CONFUSIÓN (ÁRBOL BALANCEADO) ===
+<pre><code>=== MATRIZ DE CONFUSIÓN (RANDOM FOREST BALANCEADO) ===
 
 Predicción (0=No, 1=Sí)     0     1
 Realidad (0=No, 1=Sí)              
-0                        5353  7260
-1                        1313  1882
+0                        7571  5042
+1                         784  2411
 
 === EVALUACIÓN ===
-Accuracy Global:              45.77%
-Recall (Detección del Muro):  58.90%</code></pre>
+Accuracy Global:              63.15%
+Recall (Detección del Muro):  75.46%
+
+=== VARIABLES MÁS IMPORTANTES ===</code></pre>
+</div>
+<div id="entrenamiento-random-forest-clasificacion" class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Variable</th>
+<th data-quarto-table-cell-role="th">Importancia</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>is_Female</td>
+<td>0.212594</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>half</td>
+<td>0.132783</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>humidity_pct</td>
+<td>0.110042</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>temp_mean_c</td>
+<td>0.102492</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>20k</td>
+<td>0.098802</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>wind_speed_kmh</td>
+<td>0.095339</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>10k</td>
+<td>0.082027</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>15k</td>
+<td>0.070149</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>5k</td>
+<td>0.064027</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>age</td>
+<td>0.029158</td>
+</tr>
+</tbody>
+</table>
+
 </div>
 </div>
+</div>
+<p>Los parámetros elegidos tienen la siguiente función:</p>
+<ul>
+<li><code>n_estimators=300</code> indica que el bosque estará formado por 300 árboles. Aumentar este valor suele estabilizar el resultado, aunque incrementa el tiempo de entrenamiento.</li>
+<li><code>criterion='gini'</code> mantiene el mismo criterio de pureza usado en el árbol individual.</li>
+<li><code>class_weight='balanced_subsample'</code> corrige el desbalanceo de clases dentro de cada muestra aleatoria usada para entrenar cada árbol.</li>
+<li><code>max_depth=7</code> mantiene árboles de complejidad comparable al árbol individual anterior.</li>
+<li><code>max_features='sqrt'</code> hace que cada árbol valore solo una raíz cuadrada del número total de variables en cada división, aumentando la diversidad del bosque.</li>
+<li><code>min_samples_leaf=20</code> exige que cada hoja final tenga al menos 20 observaciones, suavizando reglas demasiado específicas.</li>
+<li><code>n_jobs=-1</code> permite usar todos los núcleos disponibles para acelerar el entrenamiento.</li>
+</ul>
+</section>
+</section>
+<section id="selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación" class="level3" data-number="4.3.4">
+<h3 data-number="4.3.4" class="anchored" data-anchor-id="selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación"><span class="header-section-number">4.3.4</span> Selección del mejor modelo y predicción en el conjunto de Validación</h3>
+<p>Tras haber entrenado y probado en test los 3 modelos anteriores, comparamos sus resultados usando como criterio principal el <em>Recall</em>. En este problema nos interesa detectar el mayor número posible de corredores que realmente chocan con el muro; por eso, si dos modelos tienen un rendimiento similar, priorizamos el que capture mejor la clase positiva. La <em>Accuracy</em> se utiliza como criterio secundario para evitar elegir un modelo que detecte muchos casos positivos a costa de fallar en exceso sobre el conjunto global.</p>
+<p>En esta comparación final no usamos Gini ni entropía porque no son métricas externas de rendimiento, sino criterios internos de aprendizaje propios de los árboles. K-NN, por ejemplo, no genera nodos ni cortes, por lo que no tendría sentido compararlo con Random Forest usando impureza de Gini. Para comparar modelos diferentes necesitamos una medida común basada en sus predicciones sobre los mismos datos de <code>test</code>. Por eso usamos la matriz de confusión, la <em>Accuracy</em>, el <em>Recall</em> y, de forma implícita, los errores que cada modelo comete sobre corredores que chocan o no chocan con el muro.</p>
+<p>También incorporamos la curva <strong>ROC</strong> y el <strong>AUC-ROC</strong>. Esta técnica es propia de clasificación binaria y evalúa la capacidad del modelo para ordenar correctamente a los corredores según su probabilidad de chocar con el muro. La curva ROC compara la tasa de verdaderos positivos frente a la tasa de falsos positivos para distintos umbrales de decisión. El AUC resume esa curva: cuanto más cercano a 1, mejor separa el modelo ambas clases.</p>
+<p>Por ello, se realiza primero una tabla comparativa en <code>test</code> y después se evalúa en <code>validation</code> únicamente el modelo seleccionado:</p>
+<div id="validacion-clasificacion-supervised" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>prob_knn_test <span class="op">=</span> modelo_clasificacion_knn.predict_proba(X_test_knn)[:, <span class="dv">1</span>]</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>prob_arbol_test <span class="op">=</span> modelo_clasificacion_arbol.predict_proba(X_test_tree)[:, <span class="dv">1</span>]</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>prob_rf_test <span class="op">=</span> modelo_clasificacion_rf.predict_proba(X_test_tree)[:, <span class="dv">1</span>]</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>metricas_test <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Modelo'</span>: [<span class="st">'K-NN'</span>, <span class="st">'Árbol de Decisión'</span>, <span class="st">'Random Forest'</span>],</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Accuracy'</span>: [acc_knn, acc_arbol, acc_rf],</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Recall'</span>: [rec_knn, rec_arbol, rec_rf],</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'AUC_ROC'</span>: [</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        roc_auc_score(y_test, prob_knn_test),</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        roc_auc_score(y_test, prob_arbol_test),</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        roc_auc_score(y_test, prob_rf_test)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>metricas_test <span class="op">=</span> (</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    metricas_test</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    .sort_values([<span class="st">'Recall'</span>, <span class="st">'Accuracy'</span>], ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    .reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>metricas_test_mostrar <span class="op">=</span> metricas_test.copy()</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>metricas_test_mostrar[<span class="st">'Accuracy'</span>] <span class="op">=</span> metricas_test_mostrar[<span class="st">'Accuracy'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="ss">f"</span><span class="sc">{</span>x<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>metricas_test_mostrar[<span class="st">'Recall'</span>] <span class="op">=</span> metricas_test_mostrar[<span class="st">'Recall'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="ss">f"</span><span class="sc">{</span>x<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>metricas_test_mostrar[<span class="st">'AUC_ROC'</span>] <span class="op">=</span> metricas_test_mostrar[<span class="st">'AUC_ROC'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="ss">f"</span><span class="sc">{</span>x<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== COMPARACIÓN DE MODELOS EN TEST ==="</span>)</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>display(metricas_test_mostrar)</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> nombre_modelo, probabilidades <span class="kw">in</span> {</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">'K-NN'</span>: prob_knn_test,</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Árbol de Decisión'</span>: prob_arbol_test,</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Random Forest'</span>: prob_rf_test</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>}.items():</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>    fpr, tpr, _ <span class="op">=</span> roc_curve(y_test, probabilidades)</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>    auc_modelo <span class="op">=</span> roc_auc_score(y_test, probabilidades)</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>    plt.plot(fpr, tpr, label<span class="op">=</span><span class="ss">f'</span><span class="sc">{</span>nombre_modelo<span class="sc">}</span><span class="ss"> (AUC=</span><span class="sc">{</span>auc_modelo<span class="sc">:.3f}</span><span class="ss">)'</span>)</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>plt.plot([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">0</span>, <span class="dv">1</span>], linestyle<span class="op">=</span><span class="st">'--'</span>, color<span class="op">=</span><span class="st">'gray'</span>, label<span class="op">=</span><span class="st">'Azar (AUC=0.500)'</span>)</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Tasa de falsos positivos'</span>)</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Tasa de verdaderos positivos'</span>)</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Curvas ROC en el conjunto de test'</span>)</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>mejor_modelo <span class="op">=</span> metricas_test.loc[<span class="dv">0</span>, <span class="st">'Modelo'</span>]</span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>modelos_validacion <span class="op">=</span> {</span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>    <span class="st">'K-NN'</span>: (modelo_clasificacion_knn, X_validation_knn),</span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Árbol de Decisión'</span>: (modelo_clasificacion_arbol, X_val_tree),</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Random Forest'</span>: (modelo_clasificacion_rf, X_val_tree)</span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>modelo_final, X_validacion_final <span class="op">=</span> modelos_validacion[mejor_modelo]</span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>predicciones_validacion <span class="op">=</span> modelo_final.predict(X_validacion_final)</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>tabla_validacion <span class="op">=</span> pd.crosstab(</span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>    y_val, predicciones_validacion,</span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>    rownames<span class="op">=</span>[<span class="st">'Realidad (0=No, 1=Sí)'</span>], colnames<span class="op">=</span>[<span class="st">'Predicción (0=No, 1=Sí)'</span>]</span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>acc_validacion <span class="op">=</span> accuracy_score(y_val, predicciones_validacion)</span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>rec_validacion <span class="op">=</span> recall_score(y_val, predicciones_validacion, pos_label<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Modelo seleccionado: </span><span class="sc">{</span>mejor_modelo<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">=== MATRIZ DE CONFUSIÓN EN VALIDACIÓN ===</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabla_validacion)</span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">=== EVALUACIÓN EN VALIDACIÓN ==="</span>)</span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Accuracy Global:              </span><span class="sc">{</span>acc_validacion<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recall (Detección del Muro):  </span><span class="sc">{</span>rec_validacion<span class="sc">:.2%}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>=== COMPARACIÓN DE MODELOS EN TEST ===</code></pre>
+</div>
+<div id="validacion-clasificacion-supervised-1" class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Modelo</th>
+<th data-quarto-table-cell-role="th">Accuracy</th>
+<th data-quarto-table-cell-role="th">Recall</th>
+<th data-quarto-table-cell-role="th">AUC_ROC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Random Forest</td>
+<td>63.15%</td>
+<td>75.46%</td>
+<td>0.745</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Árbol de Decisión</td>
+<td>63.30%</td>
+<td>72.21%</td>
+<td>0.726</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>K-NN</td>
+<td>74.18%</td>
+<td>33.52%</td>
+<td>0.590</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="03_supervised_files/figure-html/validacion-clasificacion-supervised-output-3.png" id="validacion-clasificacion-supervised-2" width="667" height="529" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Modelo seleccionado: Random Forest
+
+=== MATRIZ DE CONFUSIÓN EN VALIDACIÓN ===
+
+Predicción (0=No, 1=Sí)     0     1
+Realidad (0=No, 1=Sí)              
+0                        7554  5058
+1                         816  2380
+
+=== EVALUACIÓN EN VALIDACIÓN ===
+Accuracy Global:              62.84%
+Recall (Detección del Muro):  74.47%</code></pre>
+</div>
+</div>
+<p>Con esta comparación, K-NN queda como modelo base: tiene una <em>Accuracy</em> razonable, pero su bajo <em>Recall</em> lo hace poco adecuado para detectar a los corredores que sí sufren en el muro. El Árbol de Decisión mejora claramente la detección de la clase positiva gracias al balanceo de clases, aunque sacrifica precisión global. Random Forest busca un punto más estable entre ambos enfoques: conserva la capacidad de los árboles para capturar relaciones no lineales y reduce la dependencia de una única estructura de decisión.</p>
 </section>
 </section>
 <section id="problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km" class="level2" data-number="4.4">
 <h2 data-number="4.4" class="anchored" data-anchor-id="problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km"><span class="header-section-number">4.4</span> Problema de regresión. Predicción de tiempo final según sus datos hasta el parcial 35km</h2>
-<p>El objetivo de esta sección es predecir los tiempos finales de los corredores con los datos hasta el parcial de 35km. Por lo tanto,</p>
+<p>El objetivo de esta sección es predecir el tiempo final oficial de los corredores (<code>official_time</code>) utilizando únicamente la información disponible hasta el paso por el kilómetro 35. Es decir, el modelo no puede usar variables posteriores como <code>40k</code>, <code>pace</code>, posiciones finales o cualquier otra variable que dependa de haber terminado la carrera, ya que eso supondría introducir fuga de información (<em>data leakage</em>).</p>
+<p>En la asignatura de <em>Análisis de Datos en el Deporte</em> se observó que el parcial de 35 km era especialmente informativo para estimar el tiempo final. En este capítulo lo vamos a tratar como un problema de regresión supervisada y probaremos varios <strong>Modelos Lineales Generalizados (GLM)</strong> para determinar cuál funciona mejor.</p>
+<p>Aunque en sentido estadístico estricto un GLM puede incluir distintas distribuciones y funciones de enlace, en este análisis trabajaremos con modelos lineales de regresión implementados en <code>scikit-learn</code>: Regresión Lineal, Ridge y Lasso. Los tres comparten una idea central: estimar el tiempo final como una combinación lineal de variables predictoras.</p>
+<section id="planteamiento-del-problema-y-selección-de-variables" class="level3" data-number="4.4.1">
+<h3 data-number="4.4.1" class="anchored" data-anchor-id="planteamiento-del-problema-y-selección-de-variables"><span class="header-section-number">4.4.1</span> Planteamiento del problema y selección de variables</h3>
+<p>La variable objetivo será:</p>
+<ul>
+<li><strong><code>official_time</code></strong>: tiempo final oficial en segundos.</li>
+</ul>
+<p>Las variables predictoras serán aquellas que un analista podría conocer en el kilómetro 35:</p>
+<ul>
+<li>Variables sociodemográficas: <code>age</code>, <code>gender</code>, <code>country_residence</code>.</li>
+<li>Parciales acumulados hasta el 35 km: <code>5k</code>, <code>10k</code>, <code>15k</code>, <code>20k</code>, <code>half</code>, <code>25k</code>, <code>30k</code>, <code>35k</code>.</li>
+<li>Condiciones meteorológicas: <code>temp_mean_c</code>, <code>humidity_pct</code>, <code>wind_speed_kmh</code>.</li>
+</ul>
+<p>Dejamos fuera <code>40k</code>, <code>pace</code>, <code>projected_time</code>, clasificaciones finales y <code>hit_the_wall</code>, porque contienen información posterior o derivada del resultado final.</p>
+<p>Para validar los modelos mantendremos la misma filosofía que en clasificación:</p>
+<ul>
+<li><strong>Train (60%)</strong>: datos usados para ajustar los coeficientes de cada modelo.</li>
+<li><strong>Test (20%)</strong>: datos usados para comparar modelos y elegir hiperparámetros sencillos, como <code>alpha</code> en Ridge y Lasso.</li>
+<li><strong>Validation (20%)</strong>: datos reservados para una evaluación final del modelo seleccionado.</li>
+</ul>
+<p>En regresión no usamos muestreo estratificado porque la variable objetivo es continua. Antes de dividir, eliminamos cualquier fila con valores nulos en las variables usadas para que todos los modelos trabajen sobre exactamente el mismo conjunto de observaciones.</p>
+<div id="particion-regresion-supervised" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>features_regresion <span class="op">=</span> [</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'age'</span>, <span class="st">'gender'</span>, <span class="st">'country_residence'</span>,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'5k'</span>, <span class="st">'10k'</span>, <span class="st">'15k'</span>, <span class="st">'20k'</span>, <span class="st">'half'</span>, <span class="st">'25k'</span>, <span class="st">'30k'</span>, <span class="st">'35k'</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'temp_mean_c'</span>, <span class="st">'humidity_pct'</span>, <span class="st">'wind_speed_kmh'</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>target_regresion <span class="op">=</span> <span class="st">'official_time'</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>df_regresion <span class="op">=</span> df_boston[features_regresion <span class="op">+</span> [target_regresion]].dropna().copy()</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>X_reg <span class="op">=</span> df_regresion[features_regresion].copy()</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>y_reg <span class="op">=</span> df_regresion[target_regresion].copy()</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>X_train_reg, X_temp_reg, y_train_reg, y_temp_reg <span class="op">=</span> train_test_split(</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    X_reg, y_reg, test_size<span class="op">=</span><span class="fl">0.40</span>, random_state<span class="op">=</span><span class="dv">42</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>X_val_reg, X_test_reg, y_val_reg, y_test_reg <span class="op">=</span> train_test_split(</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    X_temp_reg, y_temp_reg, test_size<span class="op">=</span><span class="fl">0.50</span>, random_state<span class="op">=</span><span class="dv">42</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="distribución-de-la-variable-objetivo" class="level3" data-number="4.4.2">
+<h3 data-number="4.4.2" class="anchored" data-anchor-id="distribución-de-la-variable-objetivo"><span class="header-section-number">4.4.2</span> Distribución de la variable objetivo</h3>
+<p>Antes de entrenar modelos lineales conviene estudiar la distribución de <code>official_time</code>. Esto no significa que la Regresión Lineal exija que la variable objetivo sea perfectamente normal. La hipótesis clásica de normalidad se refiere sobre todo a los <strong>residuos</strong> del modelo, no directamente a <code>y</code>. Aun así, mirar la distribución del tiempo final es útil por tres motivos:</p>
+<ul>
+<li>Permite detectar asimetrías fuertes o valores extremos.</li>
+<li>Ayuda a interpretar si métricas como MAE y RMSE serán sensibles a corredores muy lentos o muy rápidos.</li>
+<li>Permite comprobar si el problema tiene una escala razonablemente continua para abordarlo como regresión.</li>
+</ul>
+<div id="distribucion-target-regresion-supervised" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>tiempo_final_min <span class="op">=</span> df_regresion[target_regresion] <span class="op">/</span> <span class="dv">60</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>resumen_tiempo_final <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Métrica'</span>: [<span class="st">'Media'</span>, <span class="st">'Mediana'</span>, <span class="st">'Desviación típica'</span>, <span class="st">'Mínimo'</span>, <span class="st">'Máximo'</span>, <span class="st">'Asimetría'</span>],</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Valor'</span>: [</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        tiempo_final_min.mean(),</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        tiempo_final_min.median(),</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>        tiempo_final_min.std(),</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>        tiempo_final_min.<span class="bu">min</span>(),</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        tiempo_final_min.<span class="bu">max</span>(),</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        stats.skew(tiempo_final_min)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>display(resumen_tiempo_final)</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">5</span>))</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>sns.histplot(tiempo_final_min, bins<span class="op">=</span><span class="dv">45</span>, kde<span class="op">=</span><span class="va">True</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].axvline(tiempo_final_min.mean(), color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, label<span class="op">=</span><span class="st">'Media'</span>)</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].axvline(tiempo_final_min.median(), color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, label<span class="op">=</span><span class="st">'Mediana'</span>)</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Distribución del tiempo final'</span>)</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">'Tiempo final (minutos)'</span>)</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">'Frecuencia'</span>)</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].legend()</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>sns.boxplot(x<span class="op">=</span>tiempo_final_min, ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Valores extremos del tiempo final'</span>)</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">'Tiempo final (minutos)'</span>)</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="distribucion-target-regresion-supervised-1" class="cell-output cell-output-display">
+<div>
 
 
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Métrica</th>
+<th data-quarto-table-cell-role="th">Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Media</td>
+<td>233.028009</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Mediana</td>
+<td>226.416667</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>Desviación típica</td>
+<td>41.445240</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>Mínimo</td>
+<td>129.283333</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>Máximo</td>
+<td>505.150000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>Asimetría</td>
+<td>0.823105</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="03_supervised_files/figure-html/distribucion-target-regresion-supervised-output-2.png" id="distribucion-target-regresion-supervised-2" width="1328" height="463" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Si la distribución presenta cierta asimetría hacia tiempos altos, no invalida automáticamente el uso de GLM. Lo importante será comprobar después si los errores del modelo se comportan de forma razonable: que no haya patrones claros en los residuos, que los errores extremos no dominen el RMSE y que el rendimiento se mantenga estable en <code>validation</code>.</p>
+</section>
+<section id="preprocesamiento-para-modelos-lineales" class="level3" data-number="4.4.3">
+<h3 data-number="4.4.3" class="anchored" data-anchor-id="preprocesamiento-para-modelos-lineales"><span class="header-section-number">4.4.3</span> Preprocesamiento para modelos lineales</h3>
+<p>Los modelos lineales necesitan que todas las variables sean numéricas. Por eso transformamos las variables categóricas en variables binarias:</p>
+<ul>
+<li><code>is_Female</code>: vale 1 si el corredor es mujer y 0 si es hombre.</li>
+<li><code>is_USA</code>: vale 1 si el corredor reside en Estados Unidos y 0 en caso contrario.</li>
+</ul>
+<p>Además, escalamos las variables con <code>StandardScaler</code>. Este paso no cambia la información contenida en los datos, pero sí coloca todas las variables en una escala comparable. Es especialmente importante en Ridge y Lasso porque ambos modelos penalizan el tamaño de los coeficientes; si una variable está medida en una escala mucho mayor que otra, la penalización podría ser injusta.</p>
+<div id="preprocesamiento-regresion-supervised" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> preparar_datos_regresion(X):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    X_preparado <span class="op">=</span> X.copy()</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    X_preparado[<span class="st">'is_Female'</span>] <span class="op">=</span> (X_preparado[<span class="st">'gender'</span>] <span class="op">==</span> <span class="st">'F'</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    X_preparado[<span class="st">'is_USA'</span>] <span class="op">=</span> (X_preparado[<span class="st">'country_residence'</span>] <span class="op">==</span> <span class="st">'USA'</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    X_preparado.drop(columns<span class="op">=</span>[<span class="st">'gender'</span>, <span class="st">'country_residence'</span>], inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> X_preparado</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>X_train_reg_prep <span class="op">=</span> preparar_datos_regresion(X_train_reg)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>X_test_reg_prep <span class="op">=</span> preparar_datos_regresion(X_test_reg)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>X_val_reg_prep <span class="op">=</span> preparar_datos_regresion(X_val_reg)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>scaler_reg <span class="op">=</span> StandardScaler()</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>X_train_reg_scaled <span class="op">=</span> scaler_reg.fit_transform(X_train_reg_prep)</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>X_test_reg_scaled <span class="op">=</span> scaler_reg.transform(X_test_reg_prep)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>X_val_reg_scaled <span class="op">=</span> scaler_reg.transform(X_val_reg_prep)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="métricas-de-evaluación-en-regresión" class="level3" data-number="4.4.4">
+<h3 data-number="4.4.4" class="anchored" data-anchor-id="métricas-de-evaluación-en-regresión"><span class="header-section-number">4.4.4</span> Métricas de evaluación en regresión</h3>
+<p>En clasificación evaluábamos si el modelo acertaba o fallaba una clase. En regresión, en cambio, el modelo predice un número continuo: el tiempo final en segundos. Por eso necesitamos métricas que midan la distancia entre el tiempo real y el tiempo predicho.</p>
+<p>Utilizaremos tres métricas principales:</p>
+<ul>
+<li><strong>MAE (<em>Mean Absolute Error</em>)</strong>: error absoluto medio. Indica, en segundos, cuánto se equivoca el modelo de media.</li>
+</ul>
+<p><span class="math display">\[MAE = \frac{1}{n}\sum_{i=1}^{n}|y_i - \hat{y}_i|\]</span></p>
+<ul>
+<li><strong>RMSE (<em>Root Mean Squared Error</em>)</strong>: raíz del error cuadrático medio. También se expresa en segundos, pero penaliza más los errores grandes.</li>
+</ul>
+<p><span class="math display">\[RMSE = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2}\]</span></p>
+<ul>
+<li><strong><span class="math inline">\(R^2\)</span></strong>: proporción de variabilidad del tiempo final explicada por el modelo. Cuanto más cercano a 1, mejor ajuste.</li>
+</ul>
+<p><span class="math display">\[R^2 = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y}_i)^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2}\]</span></p>
+<p>Para elegir el mejor modelo usaremos principalmente el <strong>MAE</strong>, porque es fácil de interpretar deportivamente: si el MAE es 120, significa que el modelo se equivoca de media en unos 2 minutos. El RMSE será una métrica secundaria para controlar si algún modelo comete errores grandes, y <span class="math inline">\(R^2\)</span> nos servirá para interpretar la capacidad explicativa global.</p>
+<p>Las curvas ROC no se aplican directamente a esta parte porque ROC evalúa clasificadores binarios, no modelos que predicen un valor continuo como segundos de carrera. Si quisiéramos usar ROC en este contexto tendríamos que transformar el problema en clasificación, por ejemplo predecir si un corredor bajará de 3 horas o no. Como aquí queremos predecir el tiempo exacto, las herramientas equivalentes son el análisis de residuos, los gráficos real vs predicho y las métricas de error.</p>
+<div id="funciones-evaluacion-regresion-supervised" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> segundos_a_min_seg(segundos):</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    segundos <span class="op">=</span> <span class="bu">int</span>(<span class="bu">round</span>(segundos))</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    minutos <span class="op">=</span> segundos <span class="op">//</span> <span class="dv">60</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    segundos_restantes <span class="op">=</span> segundos <span class="op">%</span> <span class="dv">60</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span>minutos<span class="sc">}</span><span class="ss"> min </span><span class="sc">{</span>segundos_restantes<span class="sc">}</span><span class="ss"> s"</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> evaluar_modelo_regresion(nombre_modelo, modelo, X_test, y_test):</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    predicciones <span class="op">=</span> modelo.predict(X_test)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    mae <span class="op">=</span> mean_absolute_error(y_test, predicciones)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    rmse <span class="op">=</span> np.sqrt(mean_squared_error(y_test, predicciones))</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    r2 <span class="op">=</span> r2_score(y_test, predicciones)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Modelo'</span>: nombre_modelo,</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">'MAE'</span>: mae,</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">'RMSE'</span>: rmse,</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">'R2'</span>: r2,</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">'MAE_interpretable'</span>: segundos_a_min_seg(mae),</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">'RMSE_interpretable'</span>: segundos_a_min_seg(rmse)</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="glm-1-regresión-lineal" class="level3" data-number="4.4.5">
+<h3 data-number="4.4.5" class="anchored" data-anchor-id="glm-1-regresión-lineal"><span class="header-section-number">4.4.5</span> GLM 1: Regresión Lineal</h3>
+<p>La <strong>Regresión Lineal</strong> es el modelo base. Busca estimar el tiempo final como una suma ponderada de las variables:</p>
+<p><span class="math display">\[\hat{y} = \beta_0 + \beta_1x_1 + \beta_2x_2 + ... + \beta_px_p\]</span></p>
+<p>Cada coeficiente <span class="math inline">\(\beta_j\)</span> indica cuánto cambia la predicción cuando aumenta una variable, manteniendo constantes las demás. En este caso, como las variables están escaladas, los coeficientes permiten comparar qué variables tienen mayor peso relativo dentro del modelo.</p>
+<p>La ventaja de este modelo es su interpretabilidad. La limitación es que no regulariza los coeficientes: si hay variables muy correlacionadas entre sí, como los parciales acumulados de carrera, el modelo puede volverse inestable.</p>
+<div id="regresion-lineal-supervised" class="cell" data-execution_count="15">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>modelo_regresion_lineal <span class="op">=</span> LinearRegression()</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>modelo_regresion_lineal.fit(X_train_reg_scaled, y_train_reg)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>resultado_lineal <span class="op">=</span> evaluar_modelo_regresion(</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Regresión Lineal'</span>,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    modelo_regresion_lineal,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    X_test_reg_scaled,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    y_test_reg</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== EVALUACIÓN DEL MODELO: REGRESIÓN LINEAL ==="</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"MAE:   </span><span class="sc">{</span>resultado_lineal[<span class="st">'MAE'</span>]<span class="sc">:.2f}</span><span class="ss"> segundos (</span><span class="sc">{</span>resultado_lineal[<span class="st">'MAE_interpretable'</span>]<span class="sc">}</span><span class="ss">)"</span>)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"RMSE:  </span><span class="sc">{</span>resultado_lineal[<span class="st">'RMSE'</span>]<span class="sc">:.2f}</span><span class="ss"> segundos (</span><span class="sc">{</span>resultado_lineal[<span class="st">'RMSE_interpretable'</span>]<span class="sc">}</span><span class="ss">)"</span>)</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"R2:    </span><span class="sc">{</span>resultado_lineal[<span class="st">'R2'</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>=== EVALUACIÓN DEL MODELO: REGRESIÓN LINEAL ===
+MAE:   140.39 segundos (2 min 20 s)
+RMSE:  253.86 segundos (4 min 14 s)
+R2:    0.9894</code></pre>
+</div>
+</div>
+</section>
+<section id="glm-2-ridge-regression" class="level3" data-number="4.4.6">
+<h3 data-number="4.4.6" class="anchored" data-anchor-id="glm-2-ridge-regression"><span class="header-section-number">4.4.6</span> GLM 2: Ridge Regression</h3>
+<p>La <strong>Regresión Ridge</strong> parte de la Regresión Lineal, pero añade una penalización sobre el tamaño de los coeficientes. Esta penalización se conoce como regularización L2:</p>
+<p><span class="math display">\[L2 = \alpha \sum_{j=1}^{p}\beta_j^2\]</span></p>
+<p>El parámetro <code>alpha</code> controla la fuerza de la penalización:</p>
+<ul>
+<li>Si <code>alpha</code> es pequeño, Ridge se parece mucho a una Regresión Lineal.</li>
+<li>Si <code>alpha</code> es grande, los coeficientes se reducen más y el modelo se vuelve más conservador.</li>
+</ul>
+<p>Ridge es especialmente útil cuando las variables están correlacionadas. En nuestro caso, los parciales <code>25k</code>, <code>30k</code> y <code>35k</code> contienen información muy relacionada, porque todos son tiempos acumulados de carrera. Ridge ayuda a repartir el peso entre esas variables sin que un coeficiente se dispare de forma artificial.</p>
+<p>Probamos varios valores de <code>alpha</code> usando el conjunto de <code>test</code> como referencia de comparación inicial:</p>
+<div id="cell-ridge-regresion-supervised" class="cell" data-execution_count="16">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>alphas_ridge <span class="op">=</span> [<span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>]</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>resultados_ridge <span class="op">=</span> []</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>modelos_ridge <span class="op">=</span> {}</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> alpha <span class="kw">in</span> alphas_ridge:</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    modelo_ridge <span class="op">=</span> Ridge(alpha<span class="op">=</span>alpha)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    modelo_ridge.fit(X_train_reg_scaled, y_train_reg)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    modelos_ridge[alpha] <span class="op">=</span> modelo_ridge</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    resultado <span class="op">=</span> evaluar_modelo_regresion(</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'Ridge alpha=</span><span class="sc">{</span>alpha<span class="sc">}</span><span class="ss">'</span>,</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>        modelo_ridge,</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>        X_test_reg_scaled,</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>        y_test_reg</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    resultado[<span class="st">'Alpha'</span>] <span class="op">=</span> alpha</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    resultados_ridge.append(resultado)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>tabla_ridge <span class="op">=</span> pd.DataFrame(resultados_ridge).sort_values(<span class="st">'MAE'</span>).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>display(tabla_ridge[[<span class="st">'Modelo'</span>, <span class="st">'MAE'</span>, <span class="st">'RMSE'</span>, <span class="st">'R2'</span>, <span class="st">'MAE_interpretable'</span>, <span class="st">'RMSE_interpretable'</span>]])</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>mejor_alpha_ridge <span class="op">=</span> tabla_ridge.loc[<span class="dv">0</span>, <span class="st">'Alpha'</span>]</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>modelo_ridge_final <span class="op">=</span> modelos_ridge[mejor_alpha_ridge]</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mejor alpha para Ridge según MAE en test: </span><span class="sc">{</span>mejor_alpha_ridge<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="ridge-regresion-supervised" class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Modelo</th>
+<th data-quarto-table-cell-role="th">MAE</th>
+<th data-quarto-table-cell-role="th">RMSE</th>
+<th data-quarto-table-cell-role="th">R2</th>
+<th data-quarto-table-cell-role="th">MAE_interpretable</th>
+<th data-quarto-table-cell-role="th">RMSE_interpretable</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Ridge alpha=0.01</td>
+<td>140.395199</td>
+<td>253.857234</td>
+<td>0.989408</td>
+<td>2 min 20 s</td>
+<td>4 min 14 s</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Ridge alpha=0.1</td>
+<td>140.413002</td>
+<td>253.852720</td>
+<td>0.989408</td>
+<td>2 min 20 s</td>
+<td>4 min 14 s</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>Ridge alpha=1</td>
+<td>140.591434</td>
+<td>253.813258</td>
+<td>0.989411</td>
+<td>2 min 21 s</td>
+<td>4 min 14 s</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>Ridge alpha=10</td>
+<td>142.395241</td>
+<td>253.818332</td>
+<td>0.989411</td>
+<td>2 min 22 s</td>
+<td>4 min 14 s</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>Ridge alpha=100</td>
+<td>157.240948</td>
+<td>264.872117</td>
+<td>0.988468</td>
+<td>2 min 37 s</td>
+<td>4 min 25 s</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mejor alpha para Ridge según MAE en test: 0.01</code></pre>
+</div>
+</div>
+</section>
+<section id="glm-3-lasso-regression" class="level3" data-number="4.4.7">
+<h3 data-number="4.4.7" class="anchored" data-anchor-id="glm-3-lasso-regression"><span class="header-section-number">4.4.7</span> GLM 3: Lasso Regression</h3>
+<p>La <strong>Regresión Lasso</strong> también regulariza la Regresión Lineal, pero utiliza penalización L1:</p>
+<p><span class="math display">\[L1 = \alpha \sum_{j=1}^{p}|\beta_j|\]</span></p>
+<p>La diferencia clave es que Lasso puede llevar algunos coeficientes exactamente a 0. Esto significa que, además de ajustar el modelo, puede actuar como una técnica de selección automática de variables.</p>
+<p>En este problema, Lasso nos ayuda a comprobar si todas las variables disponibles hasta el kilómetro 35 aportan información o si algunas son redundantes. Igual que con Ridge, el parámetro <code>alpha</code> controla la intensidad de la penalización.</p>
+<div id="cell-lasso-regresion-supervised" class="cell" data-execution_count="17">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>alphas_lasso <span class="op">=</span> [<span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>]</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>resultados_lasso <span class="op">=</span> []</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>modelos_lasso <span class="op">=</span> {}</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> alpha <span class="kw">in</span> alphas_lasso:</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    modelo_lasso <span class="op">=</span> Lasso(alpha<span class="op">=</span>alpha, max_iter<span class="op">=</span><span class="dv">10000</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    modelo_lasso.fit(X_train_reg_scaled, y_train_reg)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    modelos_lasso[alpha] <span class="op">=</span> modelo_lasso</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    resultado <span class="op">=</span> evaluar_modelo_regresion(</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'Lasso alpha=</span><span class="sc">{</span>alpha<span class="sc">}</span><span class="ss">'</span>,</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>        modelo_lasso,</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>        X_test_reg_scaled,</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>        y_test_reg</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    resultado[<span class="st">'Alpha'</span>] <span class="op">=</span> alpha</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    resultados_lasso.append(resultado)</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>tabla_lasso <span class="op">=</span> pd.DataFrame(resultados_lasso).sort_values(<span class="st">'MAE'</span>).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>display(tabla_lasso[[<span class="st">'Modelo'</span>, <span class="st">'MAE'</span>, <span class="st">'RMSE'</span>, <span class="st">'R2'</span>, <span class="st">'MAE_interpretable'</span>, <span class="st">'RMSE_interpretable'</span>]])</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>mejor_alpha_lasso <span class="op">=</span> tabla_lasso.loc[<span class="dv">0</span>, <span class="st">'Alpha'</span>]</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>modelo_lasso_final <span class="op">=</span> modelos_lasso[mejor_alpha_lasso]</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mejor alpha para Lasso según MAE en test: </span><span class="sc">{</span>mejor_alpha_lasso<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="lasso-regresion-supervised" class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Modelo</th>
+<th data-quarto-table-cell-role="th">MAE</th>
+<th data-quarto-table-cell-role="th">RMSE</th>
+<th data-quarto-table-cell-role="th">R2</th>
+<th data-quarto-table-cell-role="th">MAE_interpretable</th>
+<th data-quarto-table-cell-role="th">RMSE_interpretable</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Lasso alpha=0.01</td>
+<td>140.429388</td>
+<td>253.854748</td>
+<td>0.989408</td>
+<td>2 min 20 s</td>
+<td>4 min 14 s</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Lasso alpha=0.1</td>
+<td>140.814627</td>
+<td>253.842788</td>
+<td>0.989409</td>
+<td>2 min 21 s</td>
+<td>4 min 14 s</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>Lasso alpha=1</td>
+<td>144.634144</td>
+<td>254.680136</td>
+<td>0.989339</td>
+<td>2 min 25 s</td>
+<td>4 min 15 s</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>Lasso alpha=10</td>
+<td>177.673946</td>
+<td>287.119752</td>
+<td>0.986450</td>
+<td>2 min 58 s</td>
+<td>4 min 47 s</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>Lasso alpha=100</td>
+<td>221.644881</td>
+<td>328.526358</td>
+<td>0.982260</td>
+<td>3 min 42 s</td>
+<td>5 min 29 s</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mejor alpha para Lasso según MAE en test: 0.01</code></pre>
+</div>
+</div>
+</section>
+<section id="interpretación-de-coeficientes" class="level3" data-number="4.4.8">
+<h3 data-number="4.4.8" class="anchored" data-anchor-id="interpretación-de-coeficientes"><span class="header-section-number">4.4.8</span> Interpretación de coeficientes</h3>
+<p>Una de las ventajas de los GLM es que podemos estudiar sus coeficientes. Como las variables han sido escaladas, los coeficientes no se interpretan en segundos por unidad original, sino como el cambio esperado en el tiempo final cuando una variable aumenta una desviación estándar.</p>
+<p>Esto permite comparar la importancia relativa de las variables dentro de cada modelo. Los coeficientes positivos aumentan la predicción de tiempo final y los negativos la reducen.</p>
+<div id="cell-coeficientes-glm-regresion-supervised" class="cell" data-execution_count="18">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>variables_regresion_modelo <span class="op">=</span> X_train_reg_prep.columns</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>coeficientes_glm <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Variable'</span>: variables_regresion_modelo,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Lineal'</span>: modelo_regresion_lineal.coef_,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Ridge'</span>: modelo_ridge_final.coef_,</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Lasso'</span>: modelo_lasso_final.coef_</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>coeficientes_glm[<span class="st">'abs_lasso'</span>] <span class="op">=</span> coeficientes_glm[<span class="st">'Lasso'</span>].<span class="bu">abs</span>()</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>display(</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    coeficientes_glm</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    .sort_values(<span class="st">'abs_lasso'</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    .drop(columns<span class="op">=</span><span class="st">'abs_lasso'</span>)</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    .head(<span class="dv">12</span>)</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="coeficientes-glm-regresion-supervised" class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Variable</th>
+<th data-quarto-table-cell-role="th">Lineal</th>
+<th data-quarto-table-cell-role="th">Ridge</th>
+<th data-quarto-table-cell-role="th">Lasso</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>35k</td>
+<td>4025.667627</td>
+<td>4025.490154</td>
+<td>4023.305867</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>30k</td>
+<td>-1326.373114</td>
+<td>-1326.077823</td>
+<td>-1320.619051</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>20k</td>
+<td>-393.110310</td>
+<td>-392.528345</td>
+<td>-304.873336</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>half</td>
+<td>390.308089</td>
+<td>389.697613</td>
+<td>297.561227</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>25k</td>
+<td>-252.133974</td>
+<td>-252.199627</td>
+<td>-248.663766</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>5k</td>
+<td>40.663869</td>
+<td>40.662917</td>
+<td>38.696002</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12</td>
+<td>is_Female</td>
+<td>-30.534056</td>
+<td>-30.535222</td>
+<td>-30.555873</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>temp_mean_c</td>
+<td>12.105176</td>
+<td>12.105204</td>
+<td>14.530835</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>10k</td>
+<td>-14.779124</td>
+<td>-14.775172</td>
+<td>-12.185244</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">0</td>
+<td>age</td>
+<td>6.956311</td>
+<td>6.957113</td>
+<td>7.007082</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">13</td>
+<td>is_USA</td>
+<td>6.566792</td>
+<td>6.566846</td>
+<td>6.533043</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>15k</td>
+<td>-0.626758</td>
+<td>-0.654389</td>
+<td>-3.618728</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Los coeficientes obtenidos muestran un patrón muy claro: la variable dominante es <code>35k</code>. En los tres modelos su coeficiente está alrededor de 4025 segundos, muy por encima del resto de variables. Como las variables predictoras han sido escaladas, esto significa que un aumento de una desviación típica en el tiempo de paso por el kilómetro 35 se asocia con un aumento muy grande del tiempo final estimado. Deportivamente tiene todo el sentido: cuanto más tarde llega un corredor al 35k, más tarde llegará normalmente a meta.</p>
+<p>Ahora bien, hay que tener cuidado al interpretar los signos del resto de parciales. Variables como <code>20k</code>, <code>half</code>, <code>25k</code>, <code>30k</code> y <code>35k</code> son tiempos acumulados, por lo que están fuertemente correlacionadas entre sí. Por eso aparecen coeficientes aparentemente contraintuitivos, como <code>30k</code> negativo o <code>20k</code> negativo. Esto no significa que pasar más lento por el 30k mejore el tiempo final. Significa que, <strong>manteniendo constante el tiempo de paso por el 35k y el resto de variables</strong>, un mayor tiempo en <code>30k</code> implica un tramo 30k-35k relativamente más rápido. El modelo está capturando diferencias de ritmo entre parciales acumulados, no efectos aislados simples.</p>
+<p>El mismo razonamiento aplica a <code>20k</code> y <code>half</code>: son dos puntos muy cercanos de la carrera y tienen información casi duplicada. Que uno salga negativo y otro positivo es una señal clásica de <strong>multicolinealidad</strong>. El modelo predice bien, pero los coeficientes individuales de variables muy correlacionadas deben interpretarse como efectos conjuntos y condicionales, no como reglas deportivas independientes.</p>
+<p>También se observa que <code>25k</code>, <code>10k</code> y <code>15k</code> tienen pesos menores que <code>35k</code> y <code>30k</code>. Esto confirma que, para predecir el tiempo final desde el kilómetro 35, los parciales más cercanos al punto de predicción contienen la mayor parte de la información. <code>5k</code> tiene un coeficiente positivo pequeño, lo que sugiere que el ritmo inicial aporta algo de información, pero mucho menos que el estado del corredor al final de la carrera.</p>
+<p>Las variables no temporales tienen pesos bastante reducidos. <code>is_Female</code> aparece con un coeficiente cercano a -30 segundos: manteniendo constantes los parciales y el resto de variables, el modelo estima ligeramente menos tiempo final para mujeres. Este efecto es pequeño comparado con los miles de segundos asociados a <code>35k</code>, por lo que no debe sobredimensionarse. <code>temp_mean_c</code>, <code>age</code> e <code>is_USA</code> tienen coeficientes positivos modestos, indicando pequeños incrementos esperados del tiempo final al aumentar esas variables, siempre bajo la condición de mantener constantes los parciales.</p>
+<p>Por último, la similitud entre Regresión Lineal, Ridge y Lasso indica que la señal principal es muy estable. Ridge apenas cambia los coeficientes respecto a la Regresión Lineal, y Lasso reduce algo más algunos pesos, especialmente en variables redundantes, pero mantiene la misma estructura general. Esto sugiere que el modelo está muy guiado por los parciales acumulados, sobre todo por <code>35k</code>.</p>
+</section>
+<section id="selección-del-mejor-glm-y-validación-final" class="level3" data-number="4.4.9">
+<h3 data-number="4.4.9" class="anchored" data-anchor-id="selección-del-mejor-glm-y-validación-final"><span class="header-section-number">4.4.9</span> Selección del mejor GLM y validación final</h3>
+<p>Una vez entrenados los modelos y comparados en <code>test</code>, seleccionamos el mejor según MAE. Esta decisión tiene sentido porque queremos minimizar el error medio en segundos. No obstante, también observamos RMSE y <span class="math inline">\(R^2\)</span>:</p>
+<ul>
+<li>Si dos modelos tienen MAE parecido, preferiremos el que tenga menor RMSE, porque comete menos errores grandes.</li>
+<li>Si MAE y RMSE son similares, el <span class="math inline">\(R^2\)</span> ayuda a saber cuál explica mejor la variabilidad global del tiempo final.</li>
+<li>La validación final se hace una sola vez sobre <code>validation</code>, para estimar cómo se comportaría el modelo elegido ante datos no usados durante la comparación.</li>
+</ul>
+<div id="cell-seleccion-validacion-glm-regresion-supervised" class="cell" data-execution_count="19">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>resultados_glm <span class="op">=</span> pd.DataFrame([</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    resultado_lineal,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    tabla_ridge.iloc[<span class="dv">0</span>].to_dict(),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    tabla_lasso.iloc[<span class="dv">0</span>].to_dict()</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>resultados_glm <span class="op">=</span> resultados_glm.sort_values([<span class="st">'MAE'</span>, <span class="st">'RMSE'</span>], ascending<span class="op">=</span><span class="va">True</span>).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== COMPARACIÓN DE MODELOS GLM EN TEST ==="</span>)</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>display(resultados_glm[[<span class="st">'Modelo'</span>, <span class="st">'MAE'</span>, <span class="st">'RMSE'</span>, <span class="st">'R2'</span>, <span class="st">'MAE_interpretable'</span>, <span class="st">'RMSE_interpretable'</span>]])</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>mejor_glm <span class="op">=</span> resultados_glm.loc[<span class="dv">0</span>, <span class="st">'Modelo'</span>]</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> mejor_glm <span class="op">==</span> <span class="st">'Regresión Lineal'</span>:</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    modelo_glm_final <span class="op">=</span> modelo_regresion_lineal</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="cf">elif</span> <span class="st">'Ridge'</span> <span class="kw">in</span> mejor_glm:</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>    modelo_glm_final <span class="op">=</span> modelo_ridge_final</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>    modelo_glm_final <span class="op">=</span> modelo_lasso_final</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>predicciones_val_reg <span class="op">=</span> modelo_glm_final.predict(X_val_reg_scaled)</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>mae_val <span class="op">=</span> mean_absolute_error(y_val_reg, predicciones_val_reg)</span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>rmse_val <span class="op">=</span> np.sqrt(mean_squared_error(y_val_reg, predicciones_val_reg))</span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>r2_val <span class="op">=</span> r2_score(y_val_reg, predicciones_val_reg)</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Modelo GLM seleccionado: </span><span class="sc">{</span>mejor_glm<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">=== EVALUACIÓN FINAL EN VALIDACIÓN ==="</span>)</span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"MAE:   </span><span class="sc">{</span>mae_val<span class="sc">:.2f}</span><span class="ss"> segundos (</span><span class="sc">{</span>segundos_a_min_seg(mae_val)<span class="sc">}</span><span class="ss">)"</span>)</span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"RMSE:  </span><span class="sc">{</span>rmse_val<span class="sc">:.2f}</span><span class="ss"> segundos (</span><span class="sc">{</span>segundos_a_min_seg(rmse_val)<span class="sc">}</span><span class="ss">)"</span>)</span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"R2:    </span><span class="sc">{</span>r2_val<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>=== COMPARACIÓN DE MODELOS GLM EN TEST ===</code></pre>
+</div>
+<div id="seleccion-validacion-glm-regresion-supervised" class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Modelo</th>
+<th data-quarto-table-cell-role="th">MAE</th>
+<th data-quarto-table-cell-role="th">RMSE</th>
+<th data-quarto-table-cell-role="th">R2</th>
+<th data-quarto-table-cell-role="th">MAE_interpretable</th>
+<th data-quarto-table-cell-role="th">RMSE_interpretable</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Regresión Lineal</td>
+<td>140.393223</td>
+<td>253.857743</td>
+<td>0.989407</td>
+<td>2 min 20 s</td>
+<td>4 min 14 s</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Ridge alpha=0.01</td>
+<td>140.395199</td>
+<td>253.857234</td>
+<td>0.989408</td>
+<td>2 min 20 s</td>
+<td>4 min 14 s</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>Lasso alpha=0.01</td>
+<td>140.429388</td>
+<td>253.854748</td>
+<td>0.989408</td>
+<td>2 min 20 s</td>
+<td>4 min 14 s</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Modelo GLM seleccionado: Regresión Lineal
+
+=== EVALUACIÓN FINAL EN VALIDACIÓN ===
+MAE:   139.81 segundos (2 min 20 s)
+RMSE:  262.58 segundos (4 min 23 s)
+R2:    0.9888</code></pre>
+</div>
+</div>
+</section>
+<section id="análisis-de-errores-en-validación" class="level3" data-number="4.4.10">
+<h3 data-number="4.4.10" class="anchored" data-anchor-id="análisis-de-errores-en-validación"><span class="header-section-number">4.4.10</span> Análisis de errores en validación</h3>
+<p>Además de las métricas agregadas, es recomendable revisar los errores del modelo final. Para ello analizamos los <strong>residuos</strong>, definidos como:</p>
+<p><span class="math display">\[Residuo = y - \hat{y}\]</span></p>
+<p>Si el residuo es positivo, el corredor tardó más de lo que el modelo predijo; es decir, el modelo fue optimista. Si el residuo es negativo, el modelo predijo un tiempo más lento que el tiempo real.</p>
+<p>También calculamos el porcentaje de corredores cuya predicción cae dentro de umbrales prácticos de error: 1, 2 y 5 minutos. Esta lectura es muy útil en contexto deportivo porque traduce el error estadístico a una escala fácil de interpretar.</p>
+<p>Además, añadimos dos diagnósticos propios de modelos lineales:</p>
+<ul>
+<li><strong>Residuos frente a valores predichos</strong>: permite detectar si el modelo se equivoca más en corredores rápidos o lentos. Idealmente, los residuos deberían dispersarse alrededor de 0 sin formar un patrón claro.</li>
+<li><strong>Gráfico Q-Q</strong>: permite comprobar si los residuos se aproximan razonablemente a una distribución normal. Esto es relevante para la interpretación estadística del modelo, aunque para predicción pura es más importante que los errores sean pequeños y estables.</li>
+</ul>
+<div id="errores-validacion-glm-regresion-supervised" class="cell" data-execution_count="20">
+<details class="code-fold">
+<summary>Ver código</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>df_errores_validacion <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Tiempo_real'</span>: y_val_reg.to_numpy(),</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Tiempo_predicho'</span>: predicciones_val_reg</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>df_errores_validacion[<span class="st">'Residuo'</span>] <span class="op">=</span> (</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    df_errores_validacion[<span class="st">'Tiempo_real'</span>] <span class="op">-</span> df_errores_validacion[<span class="st">'Tiempo_predicho'</span>]</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>df_errores_validacion[<span class="st">'Error_absoluto'</span>] <span class="op">=</span> df_errores_validacion[<span class="st">'Residuo'</span>].<span class="bu">abs</span>()</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>resumen_umbral_error <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Umbral'</span>: [<span class="st">'&lt;= 1 minuto'</span>, <span class="st">'&lt;= 2 minutos'</span>, <span class="st">'&lt;= 5 minutos'</span>],</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Porcentaje de predicciones'</span>: [</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>        (df_errores_validacion[<span class="st">'Error_absoluto'</span>] <span class="op">&lt;=</span> <span class="dv">60</span>).mean(),</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>        (df_errores_validacion[<span class="st">'Error_absoluto'</span>] <span class="op">&lt;=</span> <span class="dv">120</span>).mean(),</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>        (df_errores_validacion[<span class="st">'Error_absoluto'</span>] <span class="op">&lt;=</span> <span class="dv">300</span>).mean()</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>resumen_umbral_error[<span class="st">'Porcentaje de predicciones'</span>] <span class="op">=</span> (</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>    resumen_umbral_error[<span class="st">'Porcentaje de predicciones'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="ss">f"</span><span class="sc">{</span>x<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>display(resumen_umbral_error)</span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">10</span>))</span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(</span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'Tiempo_real'</span>,</span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">'Tiempo_predicho'</span>,</span>
+<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>df_errores_validacion,</span>
+<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a>    alpha<span class="op">=</span><span class="fl">0.35</span>,</span>
+<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a>    ax<span class="op">=</span>axes[<span class="dv">0</span>, <span class="dv">0</span>]</span>
+<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a>limite_min <span class="op">=</span> <span class="bu">min</span>(</span>
+<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a>    df_errores_validacion[<span class="st">'Tiempo_real'</span>].<span class="bu">min</span>(),</span>
+<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a>    df_errores_validacion[<span class="st">'Tiempo_predicho'</span>].<span class="bu">min</span>()</span>
+<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a>limite_max <span class="op">=</span> <span class="bu">max</span>(</span>
+<span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a>    df_errores_validacion[<span class="st">'Tiempo_real'</span>].<span class="bu">max</span>(),</span>
+<span id="cb27-42"><a href="#cb27-42" aria-hidden="true" tabindex="-1"></a>    df_errores_validacion[<span class="st">'Tiempo_predicho'</span>].<span class="bu">max</span>()</span>
+<span id="cb27-43"><a href="#cb27-43" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-45"><a href="#cb27-45" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">0</span>].plot([limite_min, limite_max], [limite_min, limite_max], color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb27-46"><a href="#cb27-46" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">0</span>].set_title(<span class="st">'Tiempo real vs tiempo predicho'</span>)</span>
+<span id="cb27-47"><a href="#cb27-47" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">0</span>].set_xlabel(<span class="st">'Tiempo real (segundos)'</span>)</span>
+<span id="cb27-48"><a href="#cb27-48" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">0</span>].set_ylabel(<span class="st">'Tiempo predicho (segundos)'</span>)</span>
+<span id="cb27-49"><a href="#cb27-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-50"><a href="#cb27-50" aria-hidden="true" tabindex="-1"></a>sns.histplot(df_errores_validacion[<span class="st">'Residuo'</span>], bins<span class="op">=</span><span class="dv">40</span>, kde<span class="op">=</span><span class="va">True</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb27-51"><a href="#cb27-51" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">1</span>].axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb27-52"><a href="#cb27-52" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">1</span>].set_title(<span class="st">'Distribución de residuos'</span>)</span>
+<span id="cb27-53"><a href="#cb27-53" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">1</span>].set_xlabel(<span class="st">'Residuo en segundos'</span>)</span>
+<span id="cb27-54"><a href="#cb27-54" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">1</span>].set_ylabel(<span class="st">'Frecuencia'</span>)</span>
+<span id="cb27-55"><a href="#cb27-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-56"><a href="#cb27-56" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(</span>
+<span id="cb27-57"><a href="#cb27-57" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'Tiempo_predicho'</span>,</span>
+<span id="cb27-58"><a href="#cb27-58" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">'Residuo'</span>,</span>
+<span id="cb27-59"><a href="#cb27-59" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>df_errores_validacion,</span>
+<span id="cb27-60"><a href="#cb27-60" aria-hidden="true" tabindex="-1"></a>    alpha<span class="op">=</span><span class="fl">0.35</span>,</span>
+<span id="cb27-61"><a href="#cb27-61" aria-hidden="true" tabindex="-1"></a>    ax<span class="op">=</span>axes[<span class="dv">1</span>, <span class="dv">0</span>]</span>
+<span id="cb27-62"><a href="#cb27-62" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-63"><a href="#cb27-63" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>, <span class="dv">0</span>].axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb27-64"><a href="#cb27-64" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>, <span class="dv">0</span>].set_title(<span class="st">'Residuos frente a valores predichos'</span>)</span>
+<span id="cb27-65"><a href="#cb27-65" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>, <span class="dv">0</span>].set_xlabel(<span class="st">'Tiempo predicho (segundos)'</span>)</span>
+<span id="cb27-66"><a href="#cb27-66" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>, <span class="dv">0</span>].set_ylabel(<span class="st">'Residuo (segundos)'</span>)</span>
+<span id="cb27-67"><a href="#cb27-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-68"><a href="#cb27-68" aria-hidden="true" tabindex="-1"></a>stats.probplot(df_errores_validacion[<span class="st">'Residuo'</span>], dist<span class="op">=</span><span class="st">'norm'</span>, plot<span class="op">=</span>axes[<span class="dv">1</span>, <span class="dv">1</span>])</span>
+<span id="cb27-69"><a href="#cb27-69" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>, <span class="dv">1</span>].set_title(<span class="st">'Q-Q plot de residuos'</span>)</span>
+<span id="cb27-70"><a href="#cb27-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-71"><a href="#cb27-71" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb27-72"><a href="#cb27-72" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="errores-validacion-glm-regresion-supervised-1" class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Umbral</th>
+<th data-quarto-table-cell-role="th">Porcentaje de predicciones</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>&lt;= 1 minuto</td>
+<td>33.51%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>&lt;= 2 minutos</td>
+<td>60.95%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>&lt;= 5 minutos</td>
+<td>91.54%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="03_supervised_files/figure-html/errores-validacion-glm-regresion-supervised-output-2.png" id="errores-validacion-glm-regresion-supervised-2" width="1328" height="943" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La primera gráfica, <strong>tiempo real frente a tiempo predicho</strong>, muestra un ajuste global muy bueno: la mayoría de puntos se concentra cerca de la diagonal roja. Esto indica que el modelo reproduce correctamente la relación principal entre el paso por el 35k y el tiempo final. Sin embargo, a medida que aumentan los tiempos finales, la nube se abre un poco más. Es decir, el modelo es más preciso para corredores concentrados en la zona central de la distribución y algo menos estable en corredores muy lentos o con comportamientos de carrera más extremos.</p>
+<p>La <strong>distribución de residuos</strong> está muy centrada en 0, lo cual es positivo: en promedio, el modelo no parece tener un sesgo fuerte sistemático. Aun así, la distribución es muy apuntada y con colas largas. Esto significa que la mayoría de corredores se predice con errores pequeños, pero existen algunos casos donde el error es muy elevado. En el contexto de una maratón, estos casos pueden corresponder a atletas que sufren una caída grande de rendimiento tras el 35k, paran, se lesionan, o hacen un último tramo muy distinto al patrón general.</p>
+<p>En la gráfica de <strong>residuos frente a valores predichos</strong> se observa que los residuos no forman una nube perfectamente homogénea. Hay más dispersión en la zona media-alta de tiempos predichos y aparecen algunos residuos extremos, tanto positivos como negativos. Recordemos que el residuo se ha definido como <code>tiempo real - tiempo predicho</code>: un residuo positivo indica que el modelo fue optimista y predijo un tiempo demasiado rápido; un residuo negativo indica que el modelo fue pesimista y predijo un tiempo demasiado lento. La presencia de residuos positivos altos es especialmente interesante: son corredores que acabaron bastante peor de lo esperado según su paso por el 35k.</p>
+<p>El <strong>Q-Q plot</strong> confirma esta lectura. La parte central de los residuos sigue razonablemente bien la línea teórica, pero las colas se separan mucho, sobre todo en los extremos. Por tanto, los residuos no son perfectamente normales: hay colas pesadas y outliers. Esto no invalida el modelo como herramienta predictiva, especialmente si el MAE y el RMSE son buenos, pero sí nos avisa de que la Regresión Lineal tiene dificultades para capturar comportamientos extremos. Para mejorar esa parte podrían probarse variables de pacing entre tramos, transformaciones del target o modelos no lineales como árboles de regresión, Random Forest Regressor o XGBoost.</p>
+<p>En conclusión, la comparación entre Regresión Lineal, Ridge y Lasso permite valorar tres enfoques lineales con distinto grado de regularización. La Regresión Lineal sirve como referencia interpretable; Ridge suele ser una opción robusta cuando hay variables muy correlacionadas, como ocurre con los parciales acumulados; y Lasso añade la posibilidad de reducir el peso de variables redundantes hasta dejarlas fuera del modelo. La decisión final se basa en el error sobre <code>test</code> y se confirma en <code>validation</code>, evitando elegir un modelo solo porque se ajusta bien al conjunto de entrenamiento.</p>
+
+
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -586,14 +1745,13 @@ Recall (Detección del Muro):  58.90%</code></pre>
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
