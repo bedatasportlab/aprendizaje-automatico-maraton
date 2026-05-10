@@ -37,6 +37,8 @@ from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from kneed import KneeLocator # para clusters optimos
+
 
 sns.set_theme(style="whitegrid")
 plt.rcParams['figure.figsize'] = (12, 6)
@@ -91,18 +93,203 @@ Para que el algoritmo capture estrategias puras y no se sesgue por la velocidad 
 Los tiempos del dataset original son acumulativos. Para capturar el esfuerzo en cada tramo, se debe transformar la variable de paso calculando el **tiempo neto de cada segmento** (ej. $T_{10k} - T_{5k}$ para obtener el tiempo invertido exclusivamente entre el kilómetro 5 y el 10). 
 Una vez calculados los tiempos netos por tramo, estos se deben dividir entre el tiempo final oficial (`official_time`). De este modo, cada variable representará el **porcentaje del tiempo total** que el atleta invirtió en ese parcial concreto.
 
+```{python}
+# 1. Definir los tramos (ajusta los nombres según tu dataset)
+tramos = ['5k', '10k', '15k', '20k', '25k', '30k', '35k', '40k', 'official_time']
+
+# 2. Calcular tiempos netos por tramo (diferencias)
+df_steps = df_boston[tramos].copy()
+df_neto = pd.DataFrame()
+
+df_neto['split_1'] = df_steps['5k']
+df_neto['split_2'] = df_steps['10k'] - df_steps['5k']
+df_neto['split_3'] = df_steps['15k'] - df_steps['10k']
+df_neto['split_4'] = df_steps['20k'] - df_steps['15k']
+df_neto['split_5'] = df_steps['25k'] - df_steps['20k']
+df_neto['split_6'] = df_steps['30k'] - df_steps['25k']
+df_neto['split_7'] = df_steps['35k'] - df_steps['30k']
+df_neto['split_8'] = df_steps['40k'] - df_steps['35k']
+df_neto['split_9'] = df_steps['official_time'] - df_steps['40k']
+
+# 3. Normalizar: ¿Qué porcentaje del tiempo total representa cada tramo?
+df_pacing_norm = df_neto.div(df_boston['official_time'], axis=0) * 100
+
+# Mostramos el resultado
+df_pacing_norm.head()
+```
+
 #### 2. Determinación del Número Óptimo de Clústeres ($k$)
 Se iterará el algoritmo K-Means para distintos valores de $k$ (por ejemplo, del 2 al 10). Para seleccionar el $k$ óptimo que mejor defina las tipologías de corredores, se apoyará la decisión en dos métricas gráficas:
+
 * **El Método del Codo (*Elbow Method*):** Analizando la curva de caída de la Inercia.
+
 * **El Análisis de la Silueta (*Silhouette Score*):** Para medir la cohesión y separación real de los grupos formados.
+
+```{python}
+#| warning: false
+#| message: false
+
+inercia = []
+silueta = []
+rango_k = range(2, 7) # Probamos de 2 a 6 clústeres
+
+for k in rango_k:
+    km = KMeans(n_clusters=k, random_state=42, n_init=10)
+    km.fit(df_pacing_norm)
+    inercia.append(km.inertia_)
+    silueta.append(silhouette_score(df_pacing_norm, km.labels_, sample_size=10000))
+
+# Visualización de métricas
+fig, ax1 = plt.subplots()
+
+ax1.plot(rango_k, inercia, 'o-', color='b', label='Inercia (Codo)')
+ax1.set_xlabel('Número de clústeres (k)')
+ax1.set_ylabel('Inercia', color='b')
+
+ax2 = ax1.twinx()
+ax2.plot(rango_k, silueta, 'o-', color='r', label='Silueta')
+ax2.set_ylabel('Silhouette Score', color='r')
+
+plt.title('Evaluación de K-Means: Método del Codo y Silueta')
+plt.show()
+
+# 1. Encontrar el K óptimo para la Silueta (Máximo valor)
+k_optimo_silueta = rango_k[np.argmax(silueta)]
+
+# 2. Encontrar el K óptimo para el Codo
+kl = KneeLocator(rango_k, inercia, curve="convex", direction="decreasing")
+k_optimo_codo = kl.elbow
+
+print("-" * 30)
+print(f"ANÁLISIS DE CLUSTERING")
+print("-" * 30)
+print(f"➤ Sugerencia por Silueta: {k_optimo_silueta}")
+
+# Gestión del error si el codo es None
+if k_optimo_codo:
+    print(f"➤ Sugerencia por Método del Codo: {k_optimo_codo}")
+    
+    if k_optimo_silueta == k_optimo_codo:
+        print(f"\nConclusión: Ambas métricas coinciden en k={k_optimo_silueta}.")
+    else:
+        print(f"\nConclusión: Las métricas sugieren entre {min(k_optimo_silueta, k_optimo_codo)} y {max(k_optimo_silueta, k_optimo_codo)} clusters.")
+else:
+    print("➤ Sugerencia por Método del Codo: No detectado automáticamente.")
+    print(f"\nConclusión: Basándonos solo en Silueta, el valor sugerido es k={k_optimo_silueta}.")
+    print("Revisa el gráfico para confirmar el número de clusters óptimo.")
+print("-" * 30)
+```
+
+Aunque la recomendación incial es de 2 clusters, al observar el gráfico se observa un cambio significativo en la pendiente de la gráfica en el número 3. En maratón, cambios que a priori parecen pequeños pueden marcar la diferencia entre el ganador y los demás, o entre conseguir el objetivo o no hacerlo. En pro de tener una visión granular de las estrategias de carrera se establece el número óptimo de clusters en 3.
 
 #### 3. Perfilado y Visualización de Estrategias
 Una vez elegida la $k$ óptima y asignados los grupos, se extraerán las coordenadas de los centroides finales. Se graficarán estos centroides en un gráfico de líneas superpuestas (Eje X: Segmento de carrera; Eje Y: Porcentaje de tiempo invertido). Esto permitirá nombrar a cada cluster.
 
+```{python}
+#| warning: false
+#| message: false
+
+# Ajustamos con el k elegido (ejemplo k=3)
+k_optima = 3 
+kmeans_final = KMeans(n_clusters=k_optima, random_state=42, n_init=10)
+df_boston['cluster_pacing'] = kmeans_final.fit_predict(df_pacing_norm)
+
+# Extraer centroides para ver la "forma" de la estrategia
+centroides = pd.DataFrame(kmeans_final.cluster_centers_, columns=df_pacing_norm.columns)
+
+# Visualización de las estrategias
+centroides.T.plot(marker='o')
+plt.title('Estrategias de Carrera Identificadas (Centroides)')
+plt.xlabel('Tramos de la Maratón')
+plt.ylabel('% del Tiempo Total gastado en el tramo')
+plt.xticks(range(9), ['0-5k', '5-10k', '10-15k', '15-20k', '20-25k', '25-30k', '30-35k', '35-40k', '40-Fin'], rotation=45)
+plt.legend(title='Clúster')
+plt.show()
+```
+
+En este apartado se diferencian 3 tipos de estrategia que tienen en común una bajada drástica de porcentaje de tiempo empleado desde el kilómetro 40 hasta la meta. Esto ocurre porque este tramo tiene solo 2195 metros frente a los 5km que forman todos los segmentos anteriores. Esto hace que el porcentaje de tiempo que los atletas emplean en recorrer ese segmento se reduzca a menos de la mitad.
+
+En cuanto a los demás estadios de la carrera, se observa lo siguiente:
+
+- La estrategia 0, dibujada de azul, es muy estable a lo largo de toda la carrera. No se ven variaciones significativas en el porcentaje de tiempo que los atletas emplean en cada uno de los segmentos. Este tipo de dinámica de carrera se conoce como **Uniforme**, caracterizada por mantener un ritmo constante; es el comportamiento óptimo para la maratón (**Citar aqui a Arturo Casado**).
+
+- La estrategia identificada con un 2 y dibujada de verde muestra un incio más rápido (menos porcentaje de tiempo en los primeros estadios) y un final más lento (más porcentaje de tiempo en los segmetos de la mitad de la carrera hasta el final) con respecto a las otras estrategias. En otras palabras, la diferencia entre la velocidad incial y final es considerablemente mayor. Esto refleja una bajada de rendimiento significativa desde la mitad de la carrera hasta el final, lo que se conoce como estrategia **Positiva** (**Citar aqui a Arturo Casado**).
+
+- La estrategia dibujada de naranja e identificada con el número 1 se ve estable aunque con ligeras fluctuaciones. Esta táctica sigue considerándose uniforme ya que dichas variaciones no son tan significativas como para afirmar que el final ha sido mucho más lento que el comienzo. Sin embargo, para diferenciarla de la estrategia uniforme pura, se le pondrá el nombre de **Uniforme-Positiva**.
+
 #### 4. Conclusiones y Cruce de Variables
-Finalmente, se extraerá el valor de negocio de la agrupación realizando un análisis cruzado (*Cross-tabulation*). Se evaluará, por ejemplo, la relación entre cada cluster y la variable `hit_the_wall` o el porcentaje de atletas (sobre el total de ese grupo) que hay en cada clúster
+Finalmente, se extraerá el valor de negocio de la agrupación realizando un análisis cruzado (*Cross-tabulation*). Se evaluará, por ejemplo, la relación entre cada cluster y la variable `hit_the_wall` o el porcentaje de atletas (sobre el total de ese grupo) que hay en cada clúster.
 
+```{python}
+#| warning: false
+#| message: false
 
+# Mapear los nombres
+nombres_estrategias = {
+    0: "Uniforme (Óptima)",
+    1: "Uniforme-Positiva",
+    2: "Positiva (Desfallecimiento)"
+}
+df_boston['pacing_label'] = df_boston['cluster_pacing'].map(nombres_estrategias)
+
+# Ver la distribución de corredores
+print("Distribución de corredores por estrategia:")
+print(df_boston['pacing_label'].value_counts(normalize=True) * 100)
+```
+
+Se observa que el 92% aproximadamente de los deportistas llevaron una estrategia muy estable, siendo la uniforme pura la más representada (54,8%).
+
+Se procede ahora a evaluar la varible "Chocar contra el muro" con resultados objetivos como la estrategia y el tiempo final.
+
+```{python}
+#| warning: false
+#| message: false
+
+# --- GRÁFICO 1: HIT THE WALL ---
+plt.figure(figsize=(10, 6)) 
+cross_wall = pd.crosstab(df_boston['pacing_label'], df_boston['hit_the_wall'], normalize='index') * 100
+
+cross_wall.plot(kind='bar', stacked=True, color=['#a1d99b', '#e6550d'], ax=plt.gca())
+plt.title('Probabilidad de "Chocar contra el Muro" según Estrategia')
+plt.ylabel('Porcentaje de Atletas (%)')
+plt.xlabel('Estrategia de Carrera')
+plt.legend(title='Hit the Wall', labels=['No', 'Sí'], loc='upper right')
+plt.xticks(rotation=0)
+plt.show()
+
+# --- GRÁFICO 2: RENDIMIENTO FINAL ---
+plt.figure(figsize=(10, 6)) 
+sns.boxplot(x='pacing_label', y='official_time', data=df_boston, palette="viridis")
+plt.title('Rendimiento Final (Horas) según Estrategia de Ritmo')
+plt.ylabel('Tiempo Oficial (Horas)')
+plt.xlabel('Estrategia')
+plt.show()
+```
+
+Este gráfico muestra la relación existente entre cada tipo de estrategia con el fenómeno de chocar contra el muro. Dicho fenómeno consiste en una bajada de rendimiento a partir de los segmentos centrales de la carrera (generalmente entre el km 20 y el km 30). 
+
+Se ve que las estrategias uniforme y positiva son completamente puras. Esto sugiere que aquellos atletas que adoptaron una estrategia positiva fue porque efectivamente chocaron contra el muro y tuvieron una bajada considerable de rendimiento a partir de uno de los tramos centrales de la maratón. 
+
+Aquellos que adoptaron una estrategia uniforme fueron capaces de dosificar sus fuerzas, lo que les permitió tolerar la fatiga y aguantar con un ritmo estable a lo largo del recorrido. No es que no acumularan fatiga, sino que gracias a un reparto eficiente del esfuerzo consiguieron minimizar los efectos de la acumulación de kilómetros.
+
+En la estrategia Uniforme-Positiva se observa una división de los corredores. Más de un 60% no chocaron contra el muro, lo que podría traducirse en pequeñas fluctuaciones de ritmo durante toda la competición y no especificamente a partir de la mitad de la carrera.
+
+El porcentaje restante si ha sido clasificado como que chocó contra el muro. Esto puede sugerir un ritmo estable hasta la mitad de la carrera y un ligero desfallecimiento desde un tramo central hasta el final. Estos atletas consiguieron aguantar la fatiga de la segunda mitad de la carrera y mantenerse relativamente estables, aunque a un ritmo inferior que el inicial.
+
+En cuanto al tiempo final, se puede observar que cuanto más estable es la carrera, mejor tiempo se obtiene. Es decir, la eficiencia de una estrategia uniforme permite que el tiempo final acabe siendo más rápido. 
+Esto comunica que en una prueba como la maratón no gana el que sale más rápido, sino el que aguanta el ritmo a lo largo de la carrera. No se trata de "ganar tiempo" en los primeros estadios, ya que esta ganancia se verá anulada al final por la fatiga. Al contrario, la mejor táctica consiste en ser capaz de minimizar los efectos de la fatiga, y en el mejor de los casos, incluso tener energía para acelerar en los últimos kilómetros.
+
+Por último, se analiza la información que aportan los outliers a la dinámica de carrera de la maratón:
+
+Cada boxplot representa una estrategia y la relaciona con el tiempo final en el eje Y.
+
+En la estrategia uniforme los outliers situados encima del boxplot representan a todos aquellos corredores que llevaron una estrategia uniforme, pero a un ritmo significativamente más lento que la media. En el lado contrario, los outliers más rápidos son aquellos que llevaron una estrategia uniforme a una velocidad muy superior que el resto, estos son los atletas de élite.
+
+En la estrategia positiva los outliers son los deportistas que no solo fueron más lento en términos absolutos, sino que además tuvieron una decaída en el rendimiento tan marcada que su tiempo final acabó siendo mayor. Esto da información acerca de las diferentes magnitudes de desfallecimiento que se pueden dar dentro de una misma estrategia categorizada como positiva. Desde el decaimiento propio de la mayoría de corredores por la acumulación de fatiga hasta un decaimiento extremo, fruto de un comienzo demasiado rápido para las posibilidades físicas.
+
+En la estrategia Uniforme-Positiva los outliers indican un comportamiento similar, además de ritmos absolutos más lentos, hubo diferentes magnitudes en las fluctuaciones sufridas a lo largo de los segmentos de la maratón.
+
+Cruzar la variable "chocar contra el muro" con la estrategia y el tiempo final permite comprender cómo los procesos fisiológicos internos (chocar contra el muro implica una depleción en los depósitos musculares de glucógeno por la acumulación de kilómetros a una intensidad determinada) afectan a los resultados externos, objetivos y visibles: las estrategias y el tiempo final.
 
 ## Clustering Jerárquico: Análisis Táctico de la Élite Femenina (2015)
 
