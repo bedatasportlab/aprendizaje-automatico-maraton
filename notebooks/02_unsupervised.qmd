@@ -20,6 +20,8 @@ Para comenzar, cargamos el ecosistema necesario:
 
 import pandas as pd
 import numpy as np
+import seaborn as sns
+import re
 
 # El algoritmo para pacing
 from sklearn.cluster import KMeans
@@ -31,13 +33,12 @@ from sklearn.preprocessing import StandardScaler
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 # Herramientas para los mapas auto-organizados
 
-
-
-
+# Para los gráficos del clustering en streaming
+import plotly.graph_objects as go
 import matplotlib.pyplot as plt
-import seaborn as sns
+import plotly.express as px
 
-from kneed import KneeLocator # para clusters optimos
+from kneed import KneeLocator # para clusters óptimos
 
 
 sns.set_theme(style="whitegrid")
@@ -211,9 +212,9 @@ En este apartado se diferencian 3 tipos de estrategia que tienen en común una b
 
 En cuanto a los demás estadios de la carrera, se observa lo siguiente:
 
-- La estrategia 0, dibujada de azul, es muy estable a lo largo de toda la carrera. No se ven variaciones significativas en el porcentaje de tiempo que los atletas emplean en cada uno de los segmentos. Este tipo de dinámica de carrera se conoce como **Uniforme**, caracterizada por mantener un ritmo constante; es el comportamiento óptimo para la maratón (**Citar aqui a Arturo Casado**).
+- La estrategia 0, dibujada de azul, es muy estable a lo largo de toda la carrera. No se ven variaciones significativas en el porcentaje de tiempo que los atletas emplean en cada uno de los segmentos. Este tipo de dinámica de carrera se conoce como **Uniforme**, caracterizada por mantener un ritmo constante; es el comportamiento óptimo para la maratón.
 
-- La estrategia identificada con un 2 y dibujada de verde muestra un incio más rápido (menos porcentaje de tiempo en los primeros estadios) y un final más lento (más porcentaje de tiempo en los segmetos de la mitad de la carrera hasta el final) con respecto a las otras estrategias. En otras palabras, la diferencia entre la velocidad incial y final es considerablemente mayor. Esto refleja una bajada de rendimiento significativa desde la mitad de la carrera hasta el final, lo que se conoce como estrategia **Positiva** (**Citar aqui a Arturo Casado**).
+- La estrategia identificada con un 2 y dibujada de verde muestra un incio más rápido (menos porcentaje de tiempo en los primeros estadios) y un final más lento (más porcentaje de tiempo en los segmetos de la mitad de la carrera hasta el final) con respecto a las otras estrategias. En otras palabras, la diferencia entre la velocidad incial y final es considerablemente mayor. Esto refleja una bajada de rendimiento significativa desde la mitad de la carrera hasta el final, lo que se conoce como estrategia **Positiva**.
 
 - La estrategia dibujada de naranja e identificada con el número 1 se ve estable aunque con ligeras fluctuaciones. Esta táctica sigue considerándose uniforme ya que dichas variaciones no son tan significativas como para afirmar que el final ha sido mucho más lento que el comienzo. Sin embargo, para diferenciarla de la estrategia uniforme pura, se le pondrá el nombre de **Uniforme-Positiva**.
 
@@ -256,14 +257,6 @@ plt.xlabel('Estrategia de Carrera')
 plt.legend(title='Hit the Wall', labels=['No', 'Sí'], loc='upper right')
 plt.xticks(rotation=0)
 plt.show()
-
-# --- GRÁFICO 2: RENDIMIENTO FINAL ---
-plt.figure(figsize=(10, 6)) 
-sns.boxplot(x='pacing_label', y='official_time', data=df_boston, palette="viridis")
-plt.title('Rendimiento Final (Horas) según Estrategia de Ritmo')
-plt.ylabel('Tiempo Oficial (Horas)')
-plt.xlabel('Estrategia')
-plt.show()
 ```
 
 Este gráfico muestra la relación existente entre cada tipo de estrategia con el fenómeno de chocar contra el muro. Dicho fenómeno consiste en una bajada de rendimiento a partir de los segmentos centrales de la carrera (generalmente entre el km 20 y el km 30). 
@@ -275,6 +268,19 @@ Aquellos que adoptaron una estrategia uniforme fueron capaces de dosificar sus f
 En la estrategia Uniforme-Positiva se observa una división de los corredores. Más de un 60% no chocaron contra el muro, lo que podría traducirse en pequeñas fluctuaciones de ritmo durante toda la competición y no especificamente a partir de la mitad de la carrera.
 
 El porcentaje restante si ha sido clasificado como que chocó contra el muro. Esto puede sugerir un ritmo estable hasta la mitad de la carrera y un ligero desfallecimiento desde un tramo central hasta el final. Estos atletas consiguieron aguantar la fatiga de la segunda mitad de la carrera y mantenerse relativamente estables, aunque a un ritmo inferior que el inicial.
+
+```{python}
+#| warning: false
+#| message: false
+
+# --- GRÁFICO 2: RENDIMIENTO FINAL ---
+plt.figure(figsize=(10, 6)) 
+sns.boxplot(x='pacing_label', y='official_time', data=df_boston, palette="viridis")
+plt.title('Rendimiento Final (Horas) según Estrategia de Ritmo')
+plt.ylabel('Tiempo Oficial (Horas)')
+plt.xlabel('Estrategia')
+plt.show()
+```
 
 En cuanto al tiempo final, se puede observar que cuanto más estable es la carrera, mejor tiempo se obtiene. Es decir, la eficiencia de una estrategia uniforme permite que el tiempo final acabe siendo más rápido. 
 Esto comunica que en una prueba como la maratón no gana el que sale más rápido, sino el que aguanta el ritmo a lo largo de la carrera. No se trata de "ganar tiempo" en los primeros estadios, ya que esta ganancia se verá anulada al final por la fatiga. Al contrario, la mejor táctica consiste en ser capaz de minimizar los efectos de la fatiga, y en el mejor de los casos, incluso tener energía para acelerar en los últimos kilómetros.
@@ -516,8 +522,372 @@ Por lo tanto observamos que la estrategia constante (Cluster 1) es la mejor estr
 del centroides_jerarquico, df_elite_f_2015, resumen_posiciones, X_jerarquico, altura_corte, cluster_id, dendro, etiquetas_x, variables_clustering, X_scaled, Z
 ```
 
-
-
 ## Clustering en Streaming: Simulación de Carrera en Vivo
 
-La idea es cogerse a los atletas de élite femeninos y hacer un clustering en streaming al paso de cada parcial para ver cómo se hacen o deshacen los grupos de carrera. 
+Hasta ahora se ha visualizado la maratón como una foto fija de lo que ha ocurrido. Con el clustering en streaming se observan cómo han cambiado los grupos de carreras a lo largo de los tramos en función de la fatiga y los cambios de ritmo. Para este último apartado del análisis no supervisado se toma a las atletas de élite de la maratón de 2015 como muestra de estudio.
+
+### Fundamentación teórica
+
+La premisa fundamental es que los datos no se tratan de forma global, sino que se procesan mediante micro-batches (lotes) conforme las atletas cruzan cada punto de control cronometrado (5k, 10k, 15k, etc.).
+
+Este enfoque se basa en tres pilares operativos:
+
+- **Ingesta por Ventanas Temporales:** El modelo opera bajo una restricción de "ceguera del futuro". En cada etapa (por ejemplo, el km 20), el algoritmo de clustering solo tiene visibilidad de los datos acumulados hasta ese instante. Esto simula el flujo real de información en una retransmisión en vivo, permitiendo un análisis evolutivo y no retrospectivo.
+
+- **Evolución Dinámica del Estado:** Al ejecutar el clustering de manera independiente en cada nuevo lote de datos, el sistema permite que el "estado" de una atleta sea fluido. Esto captura la historia del rendimiento: una corredora puede transicionar entre diferentes perfiles competitivos a lo largo de la prueba, permitiéndonos mapear su trayectoria completa en lugar de solo su resultado final.
+
+- **Detección de Deriva de Datos (Drift):** El streaming permite identificar cambios de comportamiento en tiempo real mediante la comparación de los clusters entre batches consecutivos. Esta técnica es capaz de detectar la deriva de rendimiento (fatiga súbita o ataques tácticos) en el momento exacto en que ocurren. Es la diferencia entre saber cuánto tiempo ha perdido una atleta y entender dónde y por qué empezó a perderlo.
+
+### Clustering con grupos preestablecidos
+
+El Clustering en streaming se hará primeramente pre-estableciendo grupos de carrera. 
+
+Se adoptarán dos enfoques distintos:
+
+- Enfoque Acumulado (Tiempos): Captura la "posición relativa" total. Responde a: ¿En qué paquete de la carrera se encuentra la atleta?
+
+- Enfoque Puntual (Ritmos): Captura el "esfuerzo actual". Responde a: ¿Cómo está corriendo la atleta en este momento específico, independientemente de lo que hizo antes?
+
+```{python}
+#| warning: false
+
+# --- PREPARACIÓN DE DATOS ---
+filtro_2015 = pd.to_datetime(df_boston['Date']).dt.year == 2015
+df_elite = df_boston[filtro_2015 & (df_boston['gender'] == 'F') & (df_boston['athlete_level'] == 'Élite')].copy()
+
+splits = ['5k', '10k', '15k', '20k', '25k', '30k', '35k', '40k', 'official_time']
+scaler = StandardScaler()
+
+# Función para generar los gráficos
+def generar_sankey(df, cols_etapas, titulo, nombres_grupos=None):
+    links = []
+    node_labels = []
+    nodes_map = {}
+    node_count = 0
+    
+    # Colores base
+    colors_rgba = [
+        'rgba(46, 204, 113, 0.4)',  # Verde (G0)
+        'rgba(241, 196, 15, 0.4)',  # Amarillo (G1)
+        'rgba(231, 76, 60, 0.4)',   # Rojo (G2)
+        'rgba(149, 165, 166, 0.4)'  # Gris
+    ]
+    
+    if nombres_grupos is None:
+        nombres_grupos = {0: "G0", 1: "G1", 2: "G2"}
+
+    for i in range(len(cols_etapas) - 1):
+        s_col, t_col = cols_etapas[i], cols_etapas[i+1]
+        resumen = df.groupby([s_col, t_col]).size().reset_index(name='count')
+        
+        for _, row in resumen.iterrows():
+            s_key = f"{s_col}_{int(row[s_col])}"
+            t_key = f"{t_col}_{int(row[t_col])}"
+            
+            # Formatear etiquetas para que sean cortas y no saturen el gráfico
+            # Convertimos "cluster_time_official_time" -> "META" o "40K"
+            def clean_label(col):
+                label = col.split('_')[-1].upper()
+                return "META" if label == "TIME" else label
+
+            if s_key not in nodes_map:
+                nodes_map[s_key] = node_count
+                grupo_nom = nombres_grupos.get(int(row[s_col]), f"G{int(row[s_col])}")
+                node_labels.append(f"{clean_label(s_col)}<br>{grupo_nom}")
+                node_count += 1
+                
+            if t_key not in nodes_map:
+                nodes_map[t_key] = node_count
+                grupo_nom_t = nombres_grupos.get(int(row[t_col]), f"G{int(row[t_col])}")
+                node_labels.append(f"{clean_label(t_col)}<br>{grupo_nom_t}")
+                node_count += 1
+            
+            links.append({
+                'source': nodes_map[s_key],
+                'target': nodes_map[t_key],
+                'value': row['count'],
+                'color': colors_rgba[int(row[s_col])] if int(row[s_col]) < 3 else colors_rgba[3]
+            })
+
+    fig = go.Figure(data=[go.Sankey(
+        node=dict(
+            pad=30, # Aumentamos el pad para separar nodos amontonados
+            thickness=15, 
+            line=dict(color="black", width=0.5),
+            label=node_labels, 
+            color="lightgray"
+        ),
+        link=dict(
+            source=[l['source'] for l in links],
+            target=[l['target'] for l in links],
+            value=[l['value'] for l in links],
+            color=[l['color'] for l in links]
+        )
+    )])
+    
+    fig.update_layout(
+        title_text=titulo, 
+        font_size=10, 
+        width=1200, # Un poco más ancho para dar aire al tramo final
+        height=600
+    )
+    return fig
+
+# --- EJECUCIÓN CON NOMBRES PERSONALIZADOS ---
+
+diccionario_elites = {
+    0: "Líderes",
+    1: "Perseguidoras",
+    2: "Rezagadas"
+}
+```
+
+#### 1. Enfoque acumulado: tiempos
+
+```{python}
+#| warning: false
+
+# --- A. ANÁLISIS POR TIEMPOS ACUMULADOS ---
+col_acumuladas = []
+splits = ['5k', '10k', '15k', '20k', '25k', '30k', '35k', '40k', 'official_time']
+
+for i, split in enumerate(splits):
+    # Tomamos la historia hasta el split actual
+    features = splits[:i+1]
+    X = df_elite[features]
+    X_scaled = scaler.fit_transform(X)
+    
+    kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+    labels = kmeans.fit_predict(X_scaled)
+    
+    # Reordenar: Grupo 0 = Líderes (menor tiempo acumulado)
+    centers = kmeans.cluster_centers_.mean(axis=1)
+    mapping = {old: new for new, old in enumerate(np.argsort(centers))}
+    
+    col_name = f'cluster_time_{split}'
+    df_elite[col_name] = pd.Series(labels).map(mapping).values
+    col_acumuladas.append(col_name)
+
+# Gráfico de Tiempos
+fig_time = generar_sankey(
+    df_elite, 
+    col_acumuladas, 
+    "Evolución de Posiciones: Estabilidad de Grupos",
+    nombres_grupos=diccionario_elites
+)
+fig_time.show("png")
+```
+
+En este gráfico se pueden observar tres grupos bien diferenciados, siendo el que más participantes agrupa el de líderes. Solo se observa un cambio de grupo en el km 25, en el que un peuqeño grupo de las líderes se descuelga y pasa al grupo de las perseguidoras.
+
+Al haber preestablecido los grupos y aplicado el clustering sobre los tiempos apenas se han observado cambios. Esto ocurre porque a pesar de que pueda haber variaciones, el tiempo acumulado camufla los cambios. Por poner un ejemplo, si el grupo de cabeza se divide en 2 en el km 25 y el primer sub-grupo pasa por ese punto 20 segundos antes que el segundo sub-grupo, se seguirán clasificando como "Líderes".
+
+Al aplicar este clustering sobre el ritmo, se pueden captar algunos cambios más.
+
+#### 2. Enfoque acumulado: ritmos
+
+```{python}
+#| warning: false
+
+# --- B. ANÁLISIS POR RITMOS (TRAMO A TRAMO) ---
+col_ritmos = []
+
+for i in range(len(splits)):
+    actual = splits[i]
+    if i == 0:
+        col_ritmo_val = 'ritmo_0_5'
+        df_elite[col_ritmo_val] = df_elite[actual]
+    else:
+        anterior = splits[i-1]
+        col_ritmo_val = f'ritmo_{anterior}_{actual}'
+        df_elite[col_ritmo_val] = df_elite[actual] - df_elite[anterior]
+    
+    # Clustering sobre el esfuerzo de este tramo individualmente
+    X_r = df_elite[[col_ritmo_val]]
+    X_r_scaled = scaler.fit_transform(X_r)
+    
+    km_r = KMeans(n_clusters=3, random_state=42, n_init=10)
+    labels_r = km_r.fit_predict(X_r_scaled)
+    
+    # Reordenar: Grupo 0 = Más rápidas EN ESTE TRAMO
+    # Ojo: Una corredora puede estar en el grupo 2 de tiempos pero en el grupo 0 de ritmos (remontando)
+    order = df_elite.groupby(labels_r)[col_ritmo_val].mean().sort_values().index
+    mapping_r = {old: new for new, old in enumerate(order)}
+    
+    col_name_r = f'cluster_pace_{actual}'
+    df_elite[col_name_r] = pd.Series(labels_r).map(mapping_r).values
+    col_ritmos.append(col_name_r)
+
+# Gráfico de Ritmos
+fig_pace = generar_sankey(
+    df_elite, 
+    col_ritmos, 
+    "Dinámica de Esfuerzo: Cambios de Ritmo por Tramo",
+    nombres_grupos={0: "Ritmo Rápido", 1: "Ritmo Medio", 2: "Ritmo Lento"}
+)
+fig_pace.show("png")
+```
+
+Este gráfico muestra una cantidad de cambios considerablemente mayor al primero. 
+
+El grupo que lleva un ritmo rápido es bastante constante a lo largo de la carrera, solo con pequeñas escisiones de atletas que se ajustan a un ritmo más asequible, bien desde el principio o en momentos más centrales de la carrera.
+
+En cuanto al grupo que adopta un ritmo medio, se observa una disminución en su volumen a lo largo de la carrera. Por su parte, el grupo que lleva un ritmo lento se va haciendo cada vez más grande, acogiendo a los decaen del grupo medio y rápido. 
+
+Es de especial mención el tramo desde el km 40 hasta la meta, en el que se producen diversos cambios que dejan entreveer las estrategias mencionadas anteriormente: algunos grupos se mantienen o aceleran en los últimos metros de la carrera mientras que otro, a pesar de la cercanía a la línea de llegada, no son capaces de mantener el ritmo y siguen decayendo hasta el final.
+
+### Clustering sin grupos preestablecidos
+
+Con el objetivo de "dejar que los datos hablen" se procede a hacer un clustering dinámico sin indicar previamente ningún número de clusters. De esta forma, se podrán observar comportamientos más detallados que al forzar unos grupos como se ha hecho en el apartado anterior.
+
+#### 1. Enfoque acumulado: tiempos
+
+```{python}
+#| warning: false
+
+# --- DEFINICIÓN DE NOMBRES PARA EL ANÁLISIS ---
+nombres_tiempos_din = {
+    0: "Líderes",
+    1: "Perseguidoras",
+    2: "Rezagadas",
+    3: "Descolgadas",
+    4: "Fuera de Ritmo"
+}
+
+nombres_ritmos_din = {
+    0: "Ritmo Alto",
+    1: "Ritmo Medio",
+    2: "Ritmo Lento",
+    3: "Fatiga",
+    4: "Fatiga Crítica"
+}
+```
+
+```{python}
+#| warning: false
+
+# --- ENFOQUE DINÁMICO (K ÓPTIMO) ---
+
+col_dyn_time = []
+k_values_time = []
+
+for i, split in enumerate(splits):
+    features = splits[:i+1]
+    X = df_elite[features]
+    X_scaled = scaler.fit_transform(X)
+    
+    # Encontrar el K óptimo para este split (entre 2 y 5)
+    best_k = 2
+    max_sil = -1
+    for k in range(2, 6):
+        km = KMeans(n_clusters=k, random_state=42, n_init=10)
+        labels = km.fit_predict(X_scaled)
+        sil = silhouette_score(X_scaled, labels)
+        if sil > max_sil:
+            max_sil = sil
+            best_k = k
+    
+    k_values_time.append(best_k)
+    
+    # Aplicar el K óptimo y reordenar (0 = más rápido)
+    kmeans_final = KMeans(n_clusters=best_k, random_state=42, n_init=10)
+    clusters = kmeans_final.fit_predict(X_scaled)
+    
+    # Calculamos la media del tiempo acumulado para ordenar
+    order = df_elite.groupby(clusters)[split].mean().sort_values().index
+    mapping = {old: new for new, old in enumerate(order)}
+    
+    col_name = f'dyn_cluster_time_{split}'
+    df_elite[col_name] = pd.Series(clusters).map(mapping).values
+    col_dyn_time.append(col_name)
+
+# 1. Gráfico de Tiempos Acumulados (K Variable)
+fig_dyn_time = generar_sankey(
+    df_elite, 
+    col_dyn_time, 
+    "Estructura Natural: Evolución de Grupos Dinámicos (Tiempos)",
+    nombres_grupos=nombres_tiempos_din
+)
+fig_dyn_time.show("png")
+```
+
+Este gráfico muestra como al principio solo existían dos grupos que presentaban ligeras variaciones hasta el km 20. A partir de ese momento, la fatiga diferenció hasta grupos bien diferenciados y estables.
+
+En comparación con los grupos pre-establecidos, llevar a cabo el clustering de forma más "libre" permite conocer con más detalle los grupos de carrera que se han formado.
+
+#### 2. Enfoque acumulado: ritmos
+
+```{python}
+#| warning: false
+
+col_dyn_pace = []
+k_values_pace = []
+
+for i in range(len(splits)):
+    actual = splits[i]
+    # Recuperamos la columna de ritmo ya calculada en el paso anterior
+    if i == 0:
+        col_ritmo_val = 'ritmo_0_5'
+    else:
+        anterior = splits[i-1]
+        col_ritmo_val = f'ritmo_{anterior}_{actual}'
+    
+    X_r = df_elite[[col_ritmo_val]]
+    X_r_scaled = scaler.fit_transform(X_r)
+    
+    best_k = 2
+    max_sil = -1
+    for k in range(2, 6):
+        km = KMeans(n_clusters=k, random_state=42, n_init=10)
+        labels = km.fit_predict(X_r_scaled)
+        sil = silhouette_score(X_r_scaled, labels)
+        if sil > max_sil:
+            max_sil = sil
+            best_k = k
+            
+    k_values_pace.append(best_k)
+    
+    kmeans_r = KMeans(n_clusters=best_k, random_state=42, n_init=10)
+    clusters_r = kmeans_r.fit_predict(X_r_scaled)
+    
+    # Reordenar: 0 = Ritmo más rápido en este tramo
+    order_r = df_elite.groupby(clusters_r)[col_ritmo_val].mean().sort_values().index
+    mapping_r = {old: new for new, old in enumerate(order_r)}
+    
+    col_name_r = f'dyn_cluster_pace_{actual}'
+    df_elite[col_name_r] = pd.Series(clusters_r).map(mapping_r).values
+    col_dyn_pace.append(col_name_r)
+
+# 2. Gráfico de Ritmos Puntuales (K Variable)
+fig_dyn_pace = generar_sankey(
+    df_elite, 
+    col_dyn_pace, 
+    "Segmentación Natural: Dinámica de Esfuerzo Variable (Ritmos)",
+    nombres_grupos=nombres_ritmos_din
+)
+fig_dyn_pace.show("png")
+```
+
+Resulta llamativo que al no preestablecer grupos, el algoritmo ha hecho una división inicial de dos ritmos. Esto sugiere que al obligar a encontrar 3 grupos se obligaba a ser mucho más sensible a cualquier diferencia de ritmo. En este caso, se es "más permisivo", es decir, las pequeñas variaciones de ritmo no se consideran como un grupo aparte, reservando esa clasificación para cuando la diferencia es más significativa.
+
+En este mismo gráfico se observa como a lo largo de la carrera se diferencian mayoritariamente dos grupos relativamente estables pero en el tramo final detecta hasta 5 clasificaciones distintas, reflejando un gran cambio de ritmo en los 2 km y 195 m previos a la línea de meta.
+
+En comparación con el gráfico de los tres grupos preestablecidos, esta figura prioriza los cambios importantes, independientemente de los grupos que se produzcan.
+
+A modo de resumen, en este último gráfico se observa la diferencia entre el número de clusters detectado por el algoritmo en función de si se aplicaba sobre los tiempos o los ritmos. Esto confirma lo que ya se adelantaba anteriormente: los tiempos acumulados no reflejan los cambios de ritmo a nivel individual hasta que no son lo suficientemente llamativos como para provocar un cambio de grupo.
+
+```{python}
+import plotly.express as px
+
+# Crear un DataFrame para la comparativa de K
+df_k = pd.DataFrame({
+    'Tramo': [s.upper() for s in splits],
+    'K_Tiempos': k_values_time,
+    'K_Ritmos': k_values_pace
+})
+
+fig_k = px.line(df_k, x='Tramo', y=['K_Tiempos', 'K_Ritmos'], 
+                markers=True, title="Evolución del Número Óptimo de Grupos (K)",
+                labels={'value': 'Número de Clusters (K)', 'variable': 'Enfoque'})
+fig_k.show()
+```
