@@ -8,15 +8,9 @@ Este capítulo se divide en dos problemas distintos:
 
 2. **Problema de regresión**: Predecir el tiempo final de los atletas al paso por los 35km. Cabe destacar que en la asignatura de *Análisis de Datos en el Deporte* se realizó un estudio con modelos de regresión y se observó que el parcial que mejores predicciones obtenía era el 35, por lo tanto, ahora vamos a probar varios modelos sobre este parcial para determinar cuál es mejor. 
 
-
-## Importación de librerías
-
-Comenzamos importando las librerías necesarias
-
 ```{python}
 #| label: importar-librerias-supervised
 #| eval: true
-#| echo: true
 #| warning: false
 
 import pandas as pd
@@ -28,52 +22,22 @@ import seaborn as sns
 sns.set_theme(style="whitegrid")
 plt.rcParams['figure.figsize'] = (10, 6)
 
-# ==============================================================================
-# 1. HERRAMIENTAS DE PREPARACIÓN DE DATOS (PARTICIONADO Y ESCALADO)
-# ==============================================================================
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-
-# ==============================================================================
-# 2. MODELOS DE CLASIFICACIÓN (Para predecir "hit_the_wall")
-# ==============================================================================
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
-
-# ==============================================================================
-# 3. MODELOS DE REGRESIÓN (Para predecir el tiempo en meta)
-# ==============================================================================
-from sklearn.linear_model import LinearRegression, Ridge, Lasso # Modelos Lineales Generalizados
+from sklearn.linear_model import LinearRegression, Ridge, Lasso 
 from sklearn.tree import DecisionTreeRegressor
-import xgboost as xgb # El rey del rendimiento
-
-# ==============================================================================
-# 4. MÉTRICAS DE EVALUACIÓN (Para ponerles nota a los modelos)
-# ==============================================================================
-# Para Clasificación:
-from sklearn.metrics import accuracy_score, recall_score, classification_report, confusion_matrix, roc_auc_score, roc_curve
-# Para Regresión:
+import xgboost as xgb 
+from sklearn.metrics import accuracy_score, recall_score
+from sklearn.metrics import classification_report, confusion_matrix 
+from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from scipy import stats
 
-```
-
-## Carga de datos
-
-Realizamos la carga de datos.
-
-```{python}
-#| label: carga-datos-supervised
-#| eval: true
-#| echo: true
-#| warning: false
-
-# Si no os deja cargarlo al trabajar (no al hacer quarto render), en la consola importar os y dejais como directorio de trabajo la carpeta de notebooks
-
-# import os
-# os.getcwd (y si no está en notebook, poneis en la consola os.chdir("notebooks"))
 df_boston = pd.read_parquet("../data/processed/boston_post_eda.parquet")
+
 ```
 
 
@@ -90,7 +54,6 @@ A continuación, se hace el muestreo estratificado en una proporción 60-20-20 p
 #| eval: true
 #| echo: true
 
-# 1. SELECCIÓN DE VARIABLES
 features_todas = [
     'age', 'gender', 'country_residence', 
     '5k', '10k', '15k', '20k', 'half', 
@@ -98,17 +61,16 @@ features_todas = [
 ]
 target = 'hit_the_wall'
 
-
 X = df_boston[features_todas]
 y = df_boston[target]
 
 # 3. DIVISIÓN ESTRATIFICADA (60/20/20)
-# Primer corte: 60% Train / 40% Resto
+# 60% Train / 40% Resto
 X_train, X_temp, y_train, y_temp = train_test_split(
     X, y, test_size=0.40, random_state=42, stratify=y
 )
 
-# Segundo corte: Mitad del resto para Validación (20%) y mitad para Test (20%)
+# Mitad del resto para Validación (20%) y mitad para Test (20%)
 X_val, X_test, y_val, y_test = train_test_split(
     X_temp, y_temp, test_size=0.50, random_state=42, stratify=y_temp
 )
@@ -128,18 +90,8 @@ Una vez tenemos nuestros datos ya divididos, entrenaremos nuestros modelos en *T
 
 Cabe destacar que evaluaremos el rendimiento de dichos modelos a través de las métricas: 
 
-- **Accuracy**: Una medida de cómo fallamos en general
-- **Recall**: Ya que decirle a un atleta que no va a petar cuando en realidad peta es un error que puede costar muy caro, nuestro objetivo será maximizar dicha métrica, es decir, de todos los que realmente petan, ¿cuántos caza el modelo? 
-
-Conviene distinguir entre dos tipos de medidas. Por un lado están los **criterios internos de entrenamiento**, como el índice de Gini o la entropía, que ayudan a un árbol a decidir qué cortes hacer mientras aprende. Por otro lado están las **métricas externas de evaluación**, como la *Accuracy* y el *Recall*, que se calculan después de entrenar el modelo sobre datos que no se han usado para ajustar sus reglas.
-
-En nuestro caso, la *Accuracy* equivale al porcentaje total de predicciones correctas. Su complementario sería el **error rate** o tasa de error global:
-
-$$Error\ Rate = 1 - Accuracy$$
-
-Sin embargo, al tener una variable objetivo desbalanceada, esta tasa de error puede ser engañosa. Un modelo podría acertar muchos casos simplemente prediciendo casi siempre que el corredor no choca con el muro. Por eso incorporamos el *Recall* de la clase positiva, que mide específicamente qué proporción de los corredores que realmente sufren el muro son detectados por el modelo:
-
-$$Recall = \frac{TP}{TP + FN}$$
+- **Accuracy**: $Accuracy = \frac{TP + TN}{TP + TN + FN + FP}$
+- **Recall**: Ya que decirle a un atleta que no va a golpearse contra el muro cuando en realidad sí es un error que puede costar muy caro, nuestro objetivo será maximizar dicha métrica, es decir, de todos los positivos reales, ¿cuántos caza el modelo? $Recall = \frac{TP}{TP + FN}$
 
 Donde `TP` son los corredores que realmente chocan con el muro y el modelo detecta correctamente, y `FN` son los corredores que chocan con el muro pero el modelo no identifica. En este problema, reducir los `FN` es especialmente importante.
 

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.9.37">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,6 +12,9 @@
 
 <title>Análisis Predictivo: Maratón de Boston (2015-2017)</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -33,17 +36,17 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./notebooks/01_eda.html" rel="next">
+<link href="./notebooks/01_data_preprocessing.html" rel="next">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-9e3e5b9121e68b3f077afb32f2c64d95.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -121,20 +124,32 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./notebooks/01_eda.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Análisis Exploratorio de Datos</span></span></a>
+  <a href="./notebooks/01_data_preprocessing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Data Preprocessing</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./notebooks/02_unsupervised.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Aprendizaje No Supervisado</span></span></a>
+  <a href="./notebooks/02_eda.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Análisis Exploratorio de Datos</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./notebooks/03_supervised.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Aprendizaje Supervisado</span></span></a>
+  <a href="./notebooks/03_unsupervised.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Aprendizaje No Supervisado</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./notebooks/04_supervised.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Aprendizaje Supervisado</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./notebooks/05_discusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Discusion/Conclusiones</span></span></a>
   </div>
 </li>
     </ul>
@@ -147,7 +162,14 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Índice de contenidos</h2>
    
   <ul>
-  <li><a href="#contextualización-y-motivación" id="toc-contextualización-y-motivación" class="nav-link active" data-scroll-target="#contextualización-y-motivación">Contextualización y Motivación</a></li>
+  <li><a href="#contextualización-en-el-dominio-deportivo" id="toc-contextualización-en-el-dominio-deportivo" class="nav-link active" data-scroll-target="#contextualización-en-el-dominio-deportivo">Contextualización en el dominio deportivo</a></li>
+  <li><a href="#justificación-e-interés-del-problema" id="toc-justificación-e-interés-del-problema" class="nav-link" data-scroll-target="#justificación-e-interés-del-problema">Justificación e interés del problema</a></li>
+  <li><a href="#objetivos-del-estudio" id="toc-objetivos-del-estudio" class="nav-link" data-scroll-target="#objetivos-del-estudio">Objetivos del estudio</a>
+  <ul class="collapse">
+  <li><a href="#objetivo-general" id="toc-objetivo-general" class="nav-link" data-scroll-target="#objetivo-general">Objetivo general</a></li>
+  <li><a href="#objetivos-específicos" id="toc-objetivos-específicos" class="nav-link" data-scroll-target="#objetivos-específicos">Objetivos específicos</a></li>
+  </ul></li>
+  <li><a href="#estructura-del-proyecto" id="toc-estructura-del-proyecto" class="nav-link" data-scroll-target="#estructura-del-proyecto">Estructura del proyecto</a></li>
   </ul>
 </nav>
     </div>
@@ -176,7 +198,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">9 de May, 2026</p>
+      <p class="date">11 de May, 2026</p>
     </div>
   </div>
   
@@ -188,11 +210,36 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="contextualización-y-motivación" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="contextualización-y-motivación">Contextualización y Motivación</h2>
-<p>El maratón, una prueba de resistencia extrema de 42,195 kilómetros, representa uno de los retos de gestión energética y fisiológica más complejos en el ámbito del deporte de élite y amateur.</p>
-<p>El presente trabajo se realiza usando como conjunto de datos los registros históricos del <strong>Maratón de Boston</strong> en sus ediciones de <strong>2015, 2016 y 2017</strong>.</p>
-<p>Los principales <strong>objetivos</strong> de dicho trabajo son poner en práctica los algoritmos y modelos vistos en clase sobre <em>Aprendizaje Supervisado y No Supervisado</em>.</p>
+<section id="contextualización-en-el-dominio-deportivo" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="contextualización-en-el-dominio-deportivo">Contextualización en el dominio deportivo</h2>
+<p>El maratón es una prueba de resistencia de 42,195 kilómetros que representa uno de los retos de gestión energética y fisiológica más complejos en el ámbito del deporte. Es consolidada como una disciplina olímpica tanto masculina como femenina, exigiendo a los atletas un control exhaustivo de su biomecánica y táctica de carrera. En una prueba de esta magnitud, el éxito depende de la eficiencia metabólica y de una precisa distribución del esfuerzo a lo largo del tiempo (pacing).</p>
+<p>Para llevar a cabo este estudio, se han seleccionado los registros históricos oficiales del Maratón de Boston en sus ediciones consecutivas de 2015, 2016 y 2017. La evolución tecnológica en el cronometraje deportivo, específicamente el uso de chips de seguimiento individuales, permite registrar con total precisión los tiempos transcurridos acumulados desde la salida hasta diferentes puntos de control estratégico. Gracias a esta monitorización, disponemos de los tiempos de paso parciales de cada corredor cada 5 kilómetros y en la media maratón. Esta disponibilidad de datos granulares transforma una carrera continua en una sucesión de sectores analizables, abriendo la puerta a entender la dinámica de la prueba durante su transcurso y a ampliar el contexto disponible sobre los resultados finales obtenidos.</p>
+</section>
+<section id="justificación-e-interés-del-problema" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="justificación-e-interés-del-problema">Justificación e interés del problema</h2>
+<p>En el ámbito del Sport Analytics, el estudio de un maratón abarca múltiples frentes de gran valor práctico: desde descifrar las mejores estrategias de ritmo (pacing) para optimizar el esfuerzo en futuras ediciones, hasta reconstruir la propia dinámica y evolución táctica durante el transcurso de la prueba. Asimismo, el desarrollo de herramientas predictivas capaces de estimar el tiempo final en meta o de alertar sobre un colapso fisiológico inminente proporciona un soporte fundamental para que los entrenadores puedan ajustar la toma de decisiones en tiempo real.</p>
+<p>La unificación de los registros históricos de 2015, 2016 y 2017 amplifica enormemente el interés y la solidez de este análisis. Al tratarse del Maratón de Boston, uno de los eventos más prestigiosos del circuito World Marathon Majors, se garantiza el trabajo con una muestra de datos de altísima calidad, compuesta por atletas con una notable disciplina y preparación.</p>
+</section>
+<section id="objetivos-del-estudio" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="objetivos-del-estudio">Objetivos del estudio</h2>
+<p>Este trabajo establece dos objetivos principales: la identificación de patrones tácticos subyacentes y la anticipación del rendimiento futuro.</p>
+<section id="objetivo-general" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="objetivo-general">Objetivo general</h3>
+<p>Desarrollar y validar modelos de Aprendizaje Automático, tanto supervisados como no supervisados, capaces de descifrar las estrategias de carrera (pacing) y predecir métricas críticas de rendimiento en el Maratón de Boston, integrando datos sociodemográficos, tiempos de paso parciales y condiciones meteorológicas.</p>
+</section>
+<section id="objetivos-específicos" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="objetivos-específicos">Objetivos específicos</h3>
+<ol type="1">
+<li><p><strong>Análisis Táctico y de Pacing</strong>: Descubrir y categorizar de forma automática las diferentes estrategias de distribución del esfuerzo empleadas por los corredores mediante algoritmos de clustering, tanto jerárquico como no jerárquico.</p></li>
+<li><p><strong>Estudio del transcurso de la carrera en atletas de Élite</strong>: Diseccionar el comportamiento táctico del pelotón de élite femenina mediante clustering en streaming con el objetivo de entender la narrativa de la carrera.</p></li>
+<li><p><strong>Detección Temprana del “Muro”</strong>: Construir un modelo predictivo capaz de clasificar qué atletas sufrirán una deceleración severa en la segunda mitad de la prueba, basándose en los datos conocidos en la primera parte de la carrera.</p></li>
+<li><p><strong>Predicción de Marca Final</strong>: Evaluar y seleccionar el modelo de regresión más preciso para estimar el tiempo oficial en meta de un corredor al paso por el kilómetro 35, optimizando la toma de decisiones en el tramo final.</p></li>
+</ol>
+</section>
+</section>
+<section id="estructura-del-proyecto" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="estructura-del-proyecto">Estructura del proyecto</h2>
+<p>Para responder a los objetivos planteados, el presente informe se estructura en cuatro partes. Primero, se lleva a cabo un preprocesamiento de los datos. A continuación, se desarrolla un Análisis Exploratorio de Datos para examinar posibles relaciones entre variables. Posteriormente, se aplica el Aprendizaje No Supervisado mediante técnicas de clustering para descubrir las estrategias de carrera (pacing) tanto del dataset en general como de las atletas de élite, además de realizar clustering en streaming con el objetivo de entender cómo se desarrolló la carrera. Finalmente, se realizan modelos de Aprendizaje Supervisado, abordando tanto la clasificación para la detección temprana de los atletas que colapsan contra el “muro”, como la regresión para proyectar con precisión la marca definitiva en meta al paso por el kilómetro 35.</p>
 
 
 </section>
@@ -249,13 +296,14 @@ ul.task-list li input[type="checkbox"] {
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -601,8 +649,8 @@ ul.task-list li input[type="checkbox"] {
   <div class="nav-page nav-page-previous">
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./notebooks/01_eda.html" class="pagination-link" aria-label="Análisis Exploratorio de Datos">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Análisis Exploratorio de Datos</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./notebooks/01_data_preprocessing.html" class="pagination-link" aria-label="Data Preprocessing">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Data Preprocessing</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

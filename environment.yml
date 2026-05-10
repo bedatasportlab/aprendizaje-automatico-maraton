@@ -12,7 +12,10 @@ dependencies:
   - shap
   - matplotlib
   - seaborn
+  - plotly
+  - python-kaleido
   - jupyter
+  - kneed
   - tabulate
   - pyarrow
   - pyyaml
