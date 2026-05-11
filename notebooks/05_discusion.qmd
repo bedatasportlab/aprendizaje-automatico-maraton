@@ -1,5 +1,5 @@
 ---
-title: "Discusion/Conclusiones"
+title: "Conclusiones"
 ---
 
 Durante la aplicación de técnicas de aprendizaje no supervisado se ha observado que diferentes modelos de clustering permiten profundizar en la comprensión de la dinámica de carrera. Con el clustering no jerárquico se han identificado diferentes estrategias de carrera en función de las variaciones del ritmo y sus magnitudes. 
@@ -12,3 +12,8 @@ El clustering jerárquico ha favorecido la clasificación de atletas según lo s
 Observando la posición final de las atletas incluidas en cada cluster y sus estrategias, puede identificarse cuál de los dos obtuvo un mejor rendimiento. En el caso de este análisis ha sido el cluster 1, que, confirmando los hallazgos del clustering no jerárquico, se correspode con la estrategia más constante.
 
 El clustering en streaming ha supuesto la transición del análisis retrospectivo al análisis "en vivo". Tratando los segmentos del recorrido como micro-batches, no solo se han conocido las estrategias de carrera sino que los movimientos de un grupo a otro y el momento y la magnitud de los cambios de ritmo también han sido registrados.
+
+
+En cuanto a los resultados del aprendizaje supervisado, el problema de clasificación para anticipar chocar contra el muro demostró la necesidad de emplear algoritmos ante clases fuertemente desbalanceadas. Priorizando la métrica de Recall para minimizar el riesgo crítico de no alertar sobre un atleta en peligro, los modelos basados en árboles superaron con creces la aproximación geométrica base (K-NN). El Random Forest se consolidó como la herramienta más eficaz, alcanzando una capacidad de detección (Recall) del 74,47% en el conjunto de validación. El análisis de importancia de características reveló que factores como el género, el ritmo acumulado hasta la media maratón y las condiciones meteorológicas (humedad y temperatura) resultan determinantes para predecir este decaimiento severo en la segunda mitad de la prueba.
+
+Por otro lado, la estimación del tiempo final en meta al paso por el kilómetro 35 evidenció una notable estabilidad de la señal entre los diferentes Modelos Lineales Generalizados (GLM) evaluados. La Regresión Lineal estándar fue seleccionada como el modelo definitivo, logrando un Error Absoluto Medio (MAE) altamente de apenas 139,81 segundos respecto a la marca real. Como es coherente en el dominio deportivo, el parcial acumulado del kilómetro 35 domina de forma absoluta el peso de la predicción. El análisis posterior de residuos confirmó que, si bien los modelos lineales capturan de forma sobresaliente la tendencia general del pelotón, presentan ciertas limitaciones al proyectar las marcas de aquellos corredores extremos que sufren desfallecimientos súbitos o anómalos en los últimos dos kilómetros.

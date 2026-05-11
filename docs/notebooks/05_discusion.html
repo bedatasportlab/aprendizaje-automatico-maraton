@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>6&nbsp; Discusion/Conclusiones – Análisis Predictivo: Maratón de Boston (2015-2017)</title>
+<title>6&nbsp; Conclusiones – Análisis Predictivo: Maratón de Boston (2015-2017)</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -85,7 +85,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/05_discusion.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Discusion/Conclusiones</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/05_discusion.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Conclusiones</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -146,7 +146,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/05_discusion.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Discusion/Conclusiones</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Conclusiones</span></span></a>
   </div>
 </li>
     </ul>
@@ -162,7 +162,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Discusion/Conclusiones</span></h1>
+<h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Conclusiones</span></h1>
 </div>
 
 
@@ -179,7 +179,13 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Aquí irá la discusion</p>
+<p>Durante la aplicación de técnicas de aprendizaje no supervisado se ha observado que diferentes modelos de clustering permiten profundizar en la comprensión de la dinámica de carrera. Con el clustering no jerárquico se han identificado diferentes estrategias de carrera en función de las variaciones del ritmo y sus magnitudes.</p>
+<p>Al relacionar estas tácticas con el tiempo final o con “chocar contra el muro” se han apreciado las asociaciones existentes entre los procesos internos que obligan o permiten adoptar un tipo de estrategia u otra y que inevitablemente afectará al resultado final.</p>
+<p>Los resultados concretos han sido una clara superioridad de la estrategia Uniforme frente a la Uniforme-Positiva y la Positiva.</p>
+<p>El clustering jerárquico ha favorecido la clasificación de atletas según lo similares que fueran sus tiempos finales. La utilización del dendrograma ha diferenciado dos grupos claros. Además, favorece la visualización de subgrupos que pueden llegar a ser de interés para análisis más específicos. Observando la posición final de las atletas incluidas en cada cluster y sus estrategias, puede identificarse cuál de los dos obtuvo un mejor rendimiento. En el caso de este análisis ha sido el cluster 1, que, confirmando los hallazgos del clustering no jerárquico, se correspode con la estrategia más constante.</p>
+<p>El clustering en streaming ha supuesto la transición del análisis retrospectivo al análisis “en vivo”. Tratando los segmentos del recorrido como micro-batches, no solo se han conocido las estrategias de carrera sino que los movimientos de un grupo a otro y el momento y la magnitud de los cambios de ritmo también han sido registrados.</p>
+<p>En cuanto a los resultados del aprendizaje supervisado, el problema de clasificación para anticipar chocar contra el muro demostró la necesidad de emplear algoritmos ante clases fuertemente desbalanceadas. Priorizando la métrica de Recall para minimizar el riesgo crítico de no alertar sobre un atleta en peligro, los modelos basados en árboles superaron con creces la aproximación geométrica base (K-NN). El Random Forest se consolidó como la herramienta más eficaz, alcanzando una capacidad de detección (Recall) del 74,47% en el conjunto de validación. El análisis de importancia de características reveló que factores como el género, el ritmo acumulado hasta la media maratón y las condiciones meteorológicas (humedad y temperatura) resultan determinantes para predecir este decaimiento severo en la segunda mitad de la prueba.</p>
+<p>Por otro lado, la estimación del tiempo final en meta al paso por el kilómetro 35 evidenció una notable estabilidad de la señal entre los diferentes Modelos Lineales Generalizados (GLM) evaluados. La Regresión Lineal estándar fue seleccionada como el modelo definitivo, logrando un Error Absoluto Medio (MAE) altamente de apenas 139,81 segundos respecto a la marca real. Como es coherente en el dominio deportivo, el parcial acumulado del kilómetro 35 domina de forma absoluta el peso de la predicción. El análisis posterior de residuos confirmó que, si bien los modelos lineales capturan de forma sobresaliente la tendencia general del pelotón, presentan ciertas limitaciones al proyectar las marcas de aquellos corredores extremos que sufren desfallecimientos súbitos o anómalos en los últimos dos kilómetros.</p>
 
 
 

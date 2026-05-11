@@ -109,10 +109,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 <script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
 
-
-
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
-
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -217,7 +214,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/05_discusion.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Discusion/Conclusiones</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Conclusiones</span></span></a>
   </div>
 </li>
     </ul>
@@ -419,23 +416,10 @@ Recall (Detección del Muro):  33.52%</code></pre>
 <section id="funcionamiento-y-criterio-de-corte" class="level4" data-number="5.1.2.1">
 <h4 data-number="5.1.2.1" class="anchored" data-anchor-id="funcionamiento-y-criterio-de-corte"><span class="header-section-number">5.1.2.1</span> Funcionamiento y Criterio de Corte</h4>
 <p>En cada nodo, el algoritmo evalúa todas las características disponibles (edad, ritmos, país, etc.) y selecciona el punto de corte que mejor separa a los corredores según la variable objetivo (<code>hit_the_wall</code>). Para medir la calidad de esta separación, utiliza métricas matemáticas de “pureza”, siendo la más común el <strong>Índice de Impureza de Gini</strong>. El proceso se ramifica de forma descendente hasta alcanzar un criterio de parada definido por el analista (por ejemplo, una profundidad máxima, <code>max_depth</code>) para evitar el sobreajuste (<em>overfitting</em>).</p>
-</section>
-<section id="índice-de-gini-entropía-y-error-de-clasificación" class="level4" data-number="5.1.2.2">
-<h4 data-number="5.1.2.2" class="anchored" data-anchor-id="índice-de-gini-entropía-y-error-de-clasificación"><span class="header-section-number">5.1.2.2</span> Índice de Gini, Entropía y Error de Clasificación</h4>
-<p>Cuando un árbol prueba una posible división, no mira solo si acierta o falla en ese instante. Lo que intenta medir es si, después del corte, los nodos resultantes quedan más “puros”, es decir, con observaciones cada vez más concentradas en una única clase. Para ello se utilizan medidas de impureza.</p>
-<p>Si en un nodo hay <span class="math inline">\(K\)</span> clases y <span class="math inline">\(p_k\)</span> representa la proporción de observaciones de la clase <span class="math inline">\(k\)</span>, el índice de Gini se calcula como:</p>
-<p><span class="math display">\[Gini = 1 - \sum_{k=1}^{K} p_k^2\]</span></p>
-<p>Un nodo completamente puro tiene Gini igual a 0, porque todas las observaciones pertenecen a la misma clase. En cambio, si en un problema binario el nodo está dividido al 50%-50%, la impureza es alta, porque el árbol todavía no ha conseguido separar bien las clases.</p>
-<p>La <strong>entropía</strong> mide una idea muy parecida, pero desde el punto de vista de la información o incertidumbre:</p>
-<p><span class="math display">\[Entropia = - \sum_{k=1}^{K} p_k \log_2(p_k)\]</span></p>
-<p>También vale 0 en nodos puros y aumenta cuando las clases están mezcladas. En la práctica, Gini y entropía suelen producir árboles bastante similares. Gini es algo más simple de calcular y es el criterio por defecto en muchos árboles de clasificación; la entropía penaliza de forma algo más intensa ciertos nodos con mezcla de clases y se interpreta como ganancia de información.</p>
-<p>Otra posibilidad sería usar el <strong>error de clasificación</strong>:</p>
-<p><span class="math display">\[Error = 1 - \max(p_k)\]</span></p>
-<p>Este indicador mira únicamente la clase mayoritaria del nodo. Por ejemplo, si un nodo tiene 60% de corredores que no chocan con el muro y 40% que sí chocan, su error sería 40%. El problema es que esta medida es menos sensible a pequeñas mejoras en la composición del nodo. Por eso suele ser menos útil para decidir los cortes durante el crecimiento del árbol, aunque puede ser intuitiva para explicar el error final de clasificación.</p>
 <p>En este trabajo utilizamos <code>criterion='gini'</code> porque es un criterio robusto, eficiente y adecuado para construir árboles de clasificación. Además, combinado con <code>class_weight='balanced'</code>, permite que el árbol no ignore la clase minoritaria (<code>hit_the_wall=1</code>) durante el aprendizaje.</p>
 </section>
-<section id="aplicación-del-algoritmo-1" class="level4" data-number="5.1.2.3">
-<h4 data-number="5.1.2.3" class="anchored" data-anchor-id="aplicación-del-algoritmo-1"><span class="header-section-number">5.1.2.3</span> Aplicación del Algoritmo</h4>
+<section id="aplicación-del-algoritmo-1" class="level4" data-number="5.1.2.2">
+<h4 data-number="5.1.2.2" class="anchored" data-anchor-id="aplicación-del-algoritmo-1"><span class="header-section-number">5.1.2.2</span> Aplicación del Algoritmo</h4>
 <p>A continuación, se realiza el algoritmo. La idea será coger las variables categóricas como el país y binarizarlas, en vez de dejar todos los posibles países, ya que son muchos. De esta manera, logramos una regla lógica de si el corredor es o no de los estados unidos. Tras ello, entrenamos el algoritmo:</p>
 <div id="entrenamiento-arbol-clasificacion" class="cell" data-execution_count="6">
 <details class="code-fold">
@@ -503,13 +487,6 @@ Recall (Detección del Muro):  72.21%</code></pre>
 <li><code>country_residence</code> se transforma en <code>is_USA</code>, una variable binaria que vale 1 si el corredor reside en Estados Unidos y 0 en caso contrario. Así evitamos introducir un número muy alto de categorías.</li>
 <li><code>gender</code> se transforma en <code>is_Female</code>, que vale 1 para mujeres y 0 para hombres.</li>
 <li>No se escala ninguna variable porque los árboles no se basan en distancias, sino en cortes del tipo <code>variable &lt;= umbral</code>.</li>
-</ul>
-<p>En cuanto a los parámetros del modelo:</p>
-<ul>
-<li><code>class_weight='balanced'</code> compensa el desbalanceo de <code>hit_the_wall</code>, dando más peso a la clase minoritaria.</li>
-<li><code>criterion='gini'</code> define que los cortes se eligen minimizando la impureza de Gini.</li>
-<li><code>max_depth=7</code> limita la profundidad del árbol. Es una forma de controlar el sobreajuste: si el árbol creciera sin límite podría aprender reglas demasiado específicas del conjunto de entrenamiento.</li>
-<li><code>random_state=42</code> fija la semilla aleatoria para que los resultados sean reproducibles.</li>
 </ul>
 </section>
 </section>
@@ -654,14 +631,13 @@ Recall (Detección del Muro):  75.46%
 <li><code>max_depth=7</code> mantiene árboles de complejidad comparable al árbol individual anterior.</li>
 <li><code>max_features='sqrt'</code> hace que cada árbol valore solo una raíz cuadrada del número total de variables en cada división, aumentando la diversidad del bosque.</li>
 <li><code>min_samples_leaf=20</code> exige que cada hoja final tenga al menos 20 observaciones, suavizando reglas demasiado específicas.</li>
-<li><code>n_jobs=-1</code> permite usar todos los núcleos disponibles para acelerar el entrenamiento.</li>
 </ul>
+<p>Obtenemos un rendimiento similar al de un sólo árbol.</p>
 </section>
 </section>
 <section id="selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación" class="level3" data-number="5.1.4">
 <h3 data-number="5.1.4" class="anchored" data-anchor-id="selección-del-mejor-modelo-y-predicción-en-el-conjunto-de-validación"><span class="header-section-number">5.1.4</span> Selección del mejor modelo y predicción en el conjunto de Validación</h3>
 <p>Tras haber entrenado y probado en test los 3 modelos anteriores, comparamos sus resultados usando como criterio principal el <em>Recall</em>. En este problema nos interesa detectar el mayor número posible de corredores que realmente chocan con el muro; por eso, si dos modelos tienen un rendimiento similar, priorizamos el que capture mejor la clase positiva. La <em>Accuracy</em> se utiliza como criterio secundario para evitar elegir un modelo que detecte muchos casos positivos a costa de fallar en exceso sobre el conjunto global.</p>
-<p>En esta comparación final no usamos Gini ni entropía porque no son métricas externas de rendimiento, sino criterios internos de aprendizaje propios de los árboles. K-NN, por ejemplo, no genera nodos ni cortes, por lo que no tendría sentido compararlo con Random Forest usando impureza de Gini. Para comparar modelos diferentes necesitamos una medida común basada en sus predicciones sobre los mismos datos de <code>test</code>. Por eso usamos la matriz de confusión, la <em>Accuracy</em>, el <em>Recall</em> y, de forma implícita, los errores que cada modelo comete sobre corredores que chocan o no chocan con el muro.</p>
 <p>También incorporamos la curva <strong>ROC</strong> y el <strong>AUC-ROC</strong>. Esta técnica es propia de clasificación binaria y evalúa la capacidad del modelo para ordenar correctamente a los corredores según su probabilidad de chocar con el muro. La curva ROC compara la tasa de verdaderos positivos frente a la tasa de falsos positivos para distintos umbrales de decisión. El AUC resume esa curva: cuanto más cercano a 1, mejor separa el modelo ambas clases.</p>
 <p>Por ello, se realiza primero una tabla comparativa en <code>test</code> y después se evalúa en <code>validation</code> únicamente el modelo seleccionado:</p>
 <div id="validacion-clasificacion-supervised" class="cell" data-execution_count="8">
@@ -808,12 +784,12 @@ Accuracy Global:              62.84%
 Recall (Detección del Muro):  74.47%</code></pre>
 </div>
 </div>
-<p>Con esta comparación, K-NN queda como modelo base: tiene una <em>Accuracy</em> razonable, pero su bajo <em>Recall</em> lo hace poco adecuado para detectar a los corredores que sí sufren en el muro. El Árbol de Decisión mejora claramente la detección de la clase positiva gracias al balanceo de clases, aunque sacrifica precisión global. Random Forest busca un punto más estable entre ambos enfoques: conserva la capacidad de los árboles para capturar relaciones no lineales y reduce la dependencia de una única estructura de decisión.</p>
+<p>Por lo tanto, el modelo seleccionado, Random Forest, es el modelo final, que obtiene un Accuracy bastante bajoa a cambio de detectar bien a 3 de cada 4 corredores que sufren el muro, es decir, que hay un corredor al que no está detectando y que realmente, sufre el muro más tarde durante la carrera.</p>
 </section>
 </section>
 <section id="problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km" class="level2" data-number="5.2">
 <h2 data-number="5.2" class="anchored" data-anchor-id="problema-de-regresión.-predicción-de-tiempo-final-según-sus-datos-hasta-el-parcial-35km"><span class="header-section-number">5.2</span> Problema de regresión. Predicción de tiempo final según sus datos hasta el parcial 35km</h2>
-<p>El objetivo de esta sección es predecir el tiempo final oficial de los corredores (<code>official_time</code>) utilizando únicamente la información disponible hasta el paso por el kilómetro 35. Es decir, el modelo no puede usar variables posteriores como <code>40k</code>, <code>pace</code>, posiciones finales o cualquier otra variable que dependa de haber terminado la carrera, ya que eso supondría introducir fuga de información (<em>data leakage</em>).</p>
+<p>El objetivo de esta sección es predecir el tiempo final oficial de los corredores (<code>official_time</code>) utilizando únicamente la información disponible hasta el paso por el kilómetro 35. Es decir, el modelo no puede usar variables posteriores como <code>40k</code>, <code>pace</code>, posiciones finales o cualquier otra variable que dependa de haber terminado la carrera, ya que eso supondría introducir fuga de información.</p>
 <p>En la asignatura de <em>Análisis de Datos en el Deporte</em> se observó que el parcial de 35 km era especialmente informativo para estimar el tiempo final. En este capítulo lo vamos a tratar como un problema de regresión supervisada y probaremos varios <strong>Modelos Lineales Generalizados (GLM)</strong> para determinar cuál funciona mejor.</p>
 <p>Aunque en sentido estadístico estricto un GLM puede incluir distintas distribuciones y funciones de enlace, en este análisis trabajaremos con modelos lineales de regresión implementados en <code>scikit-learn</code>: Regresión Lineal, Ridge y Lasso. Los tres comparten una idea central: estimar el tiempo final como una combinación lineal de variables predictoras.</p>
 <section id="planteamiento-del-problema-y-selección-de-variables" class="level3" data-number="5.2.1">
@@ -2077,8 +2053,8 @@ R2:    0.9888</code></pre>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../notebooks/05_discusion.html" class="pagination-link" aria-label="Discusion/Conclusiones">
-        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Discusion/Conclusiones</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../notebooks/05_discusion.html" class="pagination-link" aria-label="Conclusiones">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Conclusiones</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

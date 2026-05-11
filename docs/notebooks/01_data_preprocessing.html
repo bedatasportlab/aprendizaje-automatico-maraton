@@ -211,7 +211,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../notebooks/05_discusion.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Discusion/Conclusiones</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Conclusiones</span></span></a>
   </div>
 </li>
     </ul>
@@ -1034,12 +1034,12 @@ dtype: object</code></pre>
 </section>
 <section id="definición-de-la-variable-de-fatiga-extrema-hitting-the-wall" class="level2" data-number="2.9">
 <h2 data-number="2.9" class="anchored" data-anchor-id="definición-de-la-variable-de-fatiga-extrema-hitting-the-wall"><span class="header-section-number">2.9</span> Definición de la Variable de Fatiga Extrema (<em>Hitting the Wall</em>)</h2>
-<p>Para habilitar un posterior enfoque de <strong>Aprendizaje Supervisado de Clasificación</strong>, definimos una nueva variable objetivo binaria denominada <strong><code>hit_the_wall</code></strong> (coloquialmente conocido como “petar”).</p>
+<p>Para habilitar un posterior enfoque de <strong>Aprendizaje Supervisado de Clasificación</strong>, definimos una nueva variable objetivo binaria denominada <strong><code>hit_the_wall</code></strong> (coloquialmente conocido como “el muro”).</p>
 <p>Establecemos el umbral de fatiga siguiendo los estándares de la literatura científica deportiva: un atleta ha sufrido una deceleración crítica si el tiempo empleado en completar la segunda mitad de la maratón es igual o superior al <strong>120% (un 20% más lento)</strong> del tiempo invertido en la primera mitad.</p>
 <ul>
 <li><strong>Primera Mitad (<span class="math inline">\(T_1\)</span>):</strong> Tiempo de paso por la media maratón (<code>half</code>).</li>
 <li><strong>Segunda Mitad (<span class="math inline">\(T_2\)</span>):</strong> <span class="math inline">\(\text{Official Time} - \text{half}\)</span>.</li>
-<li><strong>Condición de “Petar”:</strong> <span class="math inline">\(T_2 \ge 1.20 \times T_1 \implies \text{hit\_the\_wall} = 1\)</span>.</li>
+<li><strong>Condición de “el muro”:</strong> <span class="math inline">\(T_2 \ge 1.20 \times T_1 \implies \text{hit\_the\_wall} = 1\)</span>.</li>
 </ul>
 <div id="definir-hit-the-wall-prepro" class="cell" data-execution_count="11">
 <details class="code-fold">

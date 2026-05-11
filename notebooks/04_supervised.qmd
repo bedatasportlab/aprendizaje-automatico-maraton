@@ -118,7 +118,6 @@ Una vez definido el marco teórico, aplicamos el algoritmo:
 ```{python}
 #| label: knn-entrenamiento-supervised
 #| eval: true
-#| echo: true
 
 #1. Definimos las variables que vamos a usar: 
 variables_usar = ['age', '5k', '10k', '15k', '20k', 'half', 'temp_mean_c', 'humidity_pct', 'wind_speed_kmh']
@@ -171,29 +170,8 @@ del tabla_confusion, features_todas, X_train_knn, variables_usar
 El Árbol de Decisión (*Decision Tree*) es un algoritmo de aprendizaje supervisado no paramétrico que construye un modelo predictivo basado en una secuencia jerárquica de reglas lógicas. A diferencia de métodos basados en distancias (como K-NN) o en ecuaciones algebraicas (como la Regresión Lineal), el árbol divide el conjunto de datos iterativamente realizando preguntas binarias sobre las variables predictoras.
 
 #### Funcionamiento y Criterio de Corte
+
 En cada nodo, el algoritmo evalúa todas las características disponibles (edad, ritmos, país, etc.) y selecciona el punto de corte que mejor separa a los corredores según la variable objetivo (`hit_the_wall`). Para medir la calidad de esta separación, utiliza métricas matemáticas de "pureza", siendo la más común el **Índice de Impureza de Gini**. El proceso se ramifica de forma descendente hasta alcanzar un criterio de parada definido por el analista (por ejemplo, una profundidad máxima, `max_depth`) para evitar el sobreajuste (*overfitting*).
-
-#### Índice de Gini, Entropía y Error de Clasificación
-
-Cuando un árbol prueba una posible división, no mira solo si acierta o falla en ese instante. Lo que intenta medir es si, después del corte, los nodos resultantes quedan más "puros", es decir, con observaciones cada vez más concentradas en una única clase. Para ello se utilizan medidas de impureza.
-
-Si en un nodo hay $K$ clases y $p_k$ representa la proporción de observaciones de la clase $k$, el índice de Gini se calcula como:
-
-$$Gini = 1 - \sum_{k=1}^{K} p_k^2$$
-
-Un nodo completamente puro tiene Gini igual a 0, porque todas las observaciones pertenecen a la misma clase. En cambio, si en un problema binario el nodo está dividido al 50%-50%, la impureza es alta, porque el árbol todavía no ha conseguido separar bien las clases.
-
-La **entropía** mide una idea muy parecida, pero desde el punto de vista de la información o incertidumbre:
-
-$$Entropia = - \sum_{k=1}^{K} p_k \log_2(p_k)$$
-
-También vale 0 en nodos puros y aumenta cuando las clases están mezcladas. En la práctica, Gini y entropía suelen producir árboles bastante similares. Gini es algo más simple de calcular y es el criterio por defecto en muchos árboles de clasificación; la entropía penaliza de forma algo más intensa ciertos nodos con mezcla de clases y se interpreta como ganancia de información.
-
-Otra posibilidad sería usar el **error de clasificación**:
-
-$$Error = 1 - \max(p_k)$$
-
-Este indicador mira únicamente la clase mayoritaria del nodo. Por ejemplo, si un nodo tiene 60% de corredores que no chocan con el muro y 40% que sí chocan, su error sería 40%. El problema es que esta medida es menos sensible a pequeñas mejoras en la composición del nodo. Por eso suele ser menos útil para decidir los cortes durante el crecimiento del árbol, aunque puede ser intuitiva para explicar el error final de clasificación.
 
 En este trabajo utilizamos `criterion='gini'` porque es un criterio robusto, eficiente y adecuado para construir árboles de clasificación. Además, combinado con `class_weight='balanced'`, permite que el árbol no ignore la clase minoritaria (`hit_the_wall=1`) durante el aprendizaje.
 
@@ -204,7 +182,6 @@ A continuación, se realiza el algoritmo. La idea será coger las variables cate
 ```{python}
 #| label: entrenamiento-arbol-clasificacion
 #| eval: true
-#| echo: true
 
 X_train_tree = X_train.copy()
 X_test_tree = X_test.copy()
@@ -259,12 +236,6 @@ La preparación de variables del árbol se ha mantenido sencilla e interpretable
 - `gender` se transforma en `is_Female`, que vale 1 para mujeres y 0 para hombres.
 - No se escala ninguna variable porque los árboles no se basan en distancias, sino en cortes del tipo `variable <= umbral`.
 
-En cuanto a los parámetros del modelo:
-
-- `class_weight='balanced'` compensa el desbalanceo de `hit_the_wall`, dando más peso a la clase minoritaria.
-- `criterion='gini'` define que los cortes se eligen minimizando la impureza de Gini.
-- `max_depth=7` limita la profundidad del árbol. Es una forma de controlar el sobreajuste: si el árbol creciera sin límite podría aprender reglas demasiado específicas del conjunto de entrenamiento.
-- `random_state=42` fija la semilla aleatoria para que los resultados sean reproducibles.
 
 ### Random Forest
 
@@ -329,14 +300,13 @@ Los parámetros elegidos tienen la siguiente función:
 - `max_depth=7` mantiene árboles de complejidad comparable al árbol individual anterior.
 - `max_features='sqrt'` hace que cada árbol valore solo una raíz cuadrada del número total de variables en cada división, aumentando la diversidad del bosque.
 - `min_samples_leaf=20` exige que cada hoja final tenga al menos 20 observaciones, suavizando reglas demasiado específicas.
-- `n_jobs=-1` permite usar todos los núcleos disponibles para acelerar el entrenamiento.
+
+Obtenemos un rendimiento similar al de un sólo árbol.
 
 
 ### Selección del mejor modelo y predicción en el conjunto de Validación
 
 Tras haber entrenado y probado en test los 3 modelos anteriores, comparamos sus resultados usando como criterio principal el *Recall*. En este problema nos interesa detectar el mayor número posible de corredores que realmente chocan con el muro; por eso, si dos modelos tienen un rendimiento similar, priorizamos el que capture mejor la clase positiva. La *Accuracy* se utiliza como criterio secundario para evitar elegir un modelo que detecte muchos casos positivos a costa de fallar en exceso sobre el conjunto global.
-
-En esta comparación final no usamos Gini ni entropía porque no son métricas externas de rendimiento, sino criterios internos de aprendizaje propios de los árboles. K-NN, por ejemplo, no genera nodos ni cortes, por lo que no tendría sentido compararlo con Random Forest usando impureza de Gini. Para comparar modelos diferentes necesitamos una medida común basada en sus predicciones sobre los mismos datos de `test`. Por eso usamos la matriz de confusión, la *Accuracy*, el *Recall* y, de forma implícita, los errores que cada modelo comete sobre corredores que chocan o no chocan con el muro.
 
 También incorporamos la curva **ROC** y el **AUC-ROC**. Esta técnica es propia de clasificación binaria y evalúa la capacidad del modelo para ordenar correctamente a los corredores según su probabilidad de chocar con el muro. La curva ROC compara la tasa de verdaderos positivos frente a la tasa de falsos positivos para distintos umbrales de decisión. El AUC resume esa curva: cuanto más cercano a 1, mejor separa el modelo ambas clases.
 
@@ -423,7 +393,9 @@ print(f"Accuracy Global:              {acc_validacion:.2%}")
 print(f"Recall (Detección del Muro):  {rec_validacion:.2%}")
 ```
 
-Con esta comparación, K-NN queda como modelo base: tiene una *Accuracy* razonable, pero su bajo *Recall* lo hace poco adecuado para detectar a los corredores que sí sufren en el muro. El Árbol de Decisión mejora claramente la detección de la clase positiva gracias al balanceo de clases, aunque sacrifica precisión global. Random Forest busca un punto más estable entre ambos enfoques: conserva la capacidad de los árboles para capturar relaciones no lineales y reduce la dependencia de una única estructura de decisión.
+
+
+Por lo tanto, el modelo seleccionado, Random Forest, es el modelo final, que obtiene un Accuracy bastante bajoa a cambio de detectar bien a 3 de cada 4 corredores que sufren el muro, es decir, que hay un corredor al que no está detectando y que realmente, sufre el muro más tarde durante la carrera.
 
 
 ```{python}
@@ -438,14 +410,14 @@ del (
     tabla_arbol, tabla_rf, tabla_validacion,
     modelo_clasificacion_arbol, modelo_clasificacion_knn, modelo_clasificacion_rf,
     X_test_tree, X_train_tree, X_val_tree,
-    X_test_knn, X_validation_knn
+    X_test_knn, X_validation_knn, importancias_rf, metricas_test, metricas_test_mostrar
 )
 ```
 
 
 ## Problema de regresión. Predicción de tiempo final según sus datos hasta el parcial 35km
 
-El objetivo de esta sección es predecir el tiempo final oficial de los corredores (`official_time`) utilizando únicamente la información disponible hasta el paso por el kilómetro 35. Es decir, el modelo no puede usar variables posteriores como `40k`, `pace`, posiciones finales o cualquier otra variable que dependa de haber terminado la carrera, ya que eso supondría introducir fuga de información (*data leakage*).
+El objetivo de esta sección es predecir el tiempo final oficial de los corredores (`official_time`) utilizando únicamente la información disponible hasta el paso por el kilómetro 35. Es decir, el modelo no puede usar variables posteriores como `40k`, `pace`, posiciones finales o cualquier otra variable que dependa de haber terminado la carrera, ya que eso supondría introducir fuga de información.
 
 En la asignatura de *Análisis de Datos en el Deporte* se observó que el parcial de 35 km era especialmente informativo para estimar el tiempo final. En este capítulo lo vamos a tratar como un problema de regresión supervisada y probaremos varios **Modelos Lineales Generalizados (GLM)** para determinar cuál funciona mejor.
 
