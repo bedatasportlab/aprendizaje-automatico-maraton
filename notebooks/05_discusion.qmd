@@ -2,4 +2,13 @@
 title: "Discusion/Conclusiones"
 ---
 
-Aquí irá la discusion
+Durante la aplicación de técnicas de aprendizaje no supervisado se ha observado que diferentes modelos de clustering permiten profundizar en la comprensión de la dinámica de carrera. Con el clustering no jerárquico se han identificado diferentes estrategias de carrera en función de las variaciones del ritmo y sus magnitudes. 
+
+Al relacionar estas tácticas con el tiempo final o con "chocar contra el muro" se han apreciado las asociaciones existentes entre los procesos internos que obligan o permiten adoptar un tipo de estrategia u otra y que inevitablemente afectará al resultado final.
+
+Los resultados concretos han sido una clara superioridad de la estrategia Uniforme frente a la Uniforme-Positiva y la Positiva.
+
+El clustering jerárquico ha favorecido la clasificación de atletas según lo similares que fueran sus tiempos finales. La utilización del dendrograma ha diferenciado dos grupos claros. Además, favorece la visualización de subgrupos que pueden llegar a ser de interés para análisis más específicos.
+Observando la posición final de las atletas incluidas en cada cluster y sus estrategias, puede identificarse cuál de los dos obtuvo un mejor rendimiento. En el caso de este análisis ha sido el cluster 1, que, confirmando los hallazgos del clustering no jerárquico, se correspode con la estrategia más constante.
+
+El clustering en streaming ha supuesto la transición del análisis retrospectivo al análisis "en vivo". Tratando los segmentos del recorrido como micro-batches, no solo se han conocido las estrategias de carrera sino que los movimientos de un grupo a otro y el momento y la magnitud de los cambios de ritmo también han sido registrados.

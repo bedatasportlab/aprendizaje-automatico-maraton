@@ -436,13 +436,13 @@ Por lo tanto, se observa que la lógica aplicada tiene sentido según el porcent
 
 ## Definición de la Variable de Fatiga Extrema (*Hitting the Wall*)
 
-Para habilitar un posterior enfoque de **Aprendizaje Supervisado de Clasificación**, definimos una nueva variable objetivo binaria denominada **`hit_the_wall`** (coloquialmente conocido como "petar"). 
+Para habilitar un posterior enfoque de **Aprendizaje Supervisado de Clasificación**, definimos una nueva variable objetivo binaria denominada **`hit_the_wall`** (coloquialmente conocido como "el muro"). 
 
 Establecemos el umbral de fatiga siguiendo los estándares de la literatura científica deportiva: un atleta ha sufrido una deceleración crítica si el tiempo empleado en completar la segunda mitad de la maratón es igual o superior al **120% (un 20% más lento)** del tiempo invertido en la primera mitad.
 
 * **Primera Mitad ($T_1$):** Tiempo de paso por la media maratón (`half`).
 * **Segunda Mitad ($T_2$):** $\text{Official Time} - \text{half}$.
-* **Condición de "Petar":** $T_2 \ge 1.20 \times T_1 \implies \text{hit\_the\_wall} = 1$.
+* **Condición de "el muro":** $T_2 \ge 1.20 \times T_1 \implies \text{hit\_the\_wall} = 1$.
 
 ```{python}
 #| label: definir-hit-the-wall-prepro
