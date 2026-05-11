@@ -472,7 +472,6 @@ Para descubrirlo, cruzaremos las etiquetas de los grupos tácticos obtenidos con
 ```{python}
 #| label: rendimiento-grupos-tacticos
 #| eval: true
-#| echo: true
 #| warning: false
 #| output: asis
 

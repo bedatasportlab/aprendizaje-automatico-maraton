@@ -52,7 +52,6 @@ A continuación, se hace el muestreo estratificado en una proporción 60-20-20 p
 ```{python}
 #| label: particion-clasificacion-supervised
 #| eval: true
-#| echo: true
 
 features_todas = [
     'age', 'gender', 'country_residence', 
@@ -248,7 +247,7 @@ La intuición es sencilla: un único árbol puede ser muy sensible a pequeñas v
 ```{python}
 #| label: entrenamiento-random-forest-clasificacion
 #| eval: true
-#| echo: true
+
 
 modelo_clasificacion_rf = RandomForestClassifier(
     n_estimators=300,
@@ -316,7 +315,6 @@ Por ello, se realiza primero una tabla comparativa en `test` y después se eval�
 ```{python}
 #| label: validacion-clasificacion-supervised
 #| eval: true
-#| echo: true
 
 prob_knn_test = modelo_clasificacion_knn.predict_proba(X_test_knn)[:, 1]
 prob_arbol_test = modelo_clasificacion_arbol.predict_proba(X_test_tree)[:, 1]
@@ -448,7 +446,6 @@ En regresión no usamos muestreo estratificado porque la variable objetivo es co
 ```{python}
 #| label: particion-regresion-supervised
 #| eval: true
-#| echo: true
 
 features_regresion = [
     'age', 'gender', 'country_residence',
@@ -483,7 +480,6 @@ Antes de entrenar modelos lineales conviene estudiar la distribución de `offici
 ```{python}
 #| label: distribucion-target-regresion-supervised
 #| eval: true
-#| echo: true
 #| warning: false
 
 tiempo_final_min = df_regresion[target_regresion] / 60
@@ -534,7 +530,6 @@ Además, escalamos las variables con `StandardScaler`. Este paso no cambia la in
 ```{python}
 #| label: preprocesamiento-regresion-supervised
 #| eval: true
-#| echo: true
 
 def preparar_datos_regresion(X):
     X_preparado = X.copy()
@@ -578,7 +573,6 @@ Las curvas ROC no se aplican directamente a esta parte porque ROC evalúa clasif
 ```{python}
 #| label: funciones-evaluacion-regresion-supervised
 #| eval: true
-#| echo: true
 
 def segundos_a_min_seg(segundos):
     segundos = int(round(segundos))
@@ -651,7 +645,6 @@ Probamos varios valores de `alpha` usando el conjunto de `test` como referencia 
 ```{python}
 #| label: ridge-regresion-supervised
 #| eval: true
-#| echo: true
 
 alphas_ridge = [0.01, 0.1, 1, 10, 100]
 resultados_ridge = []
@@ -693,7 +686,6 @@ En este problema, Lasso nos ayuda a comprobar si todas las variables disponibles
 ```{python}
 #| label: lasso-regresion-supervised
 #| eval: true
-#| echo: true
 #| warning: false
 
 alphas_lasso = [0.01, 0.1, 1, 10, 100]
@@ -732,7 +724,6 @@ Esto permite comparar la importancia relativa de las variables dentro de cada mo
 ```{python}
 #| label: coeficientes-glm-regresion-supervised
 #| eval: true
-#| echo: true
 
 variables_regresion_modelo = X_train_reg_prep.columns
 
@@ -776,7 +767,6 @@ Una vez entrenados los modelos y comparados en `test`, seleccionamos el mejor se
 ```{python}
 #| label: seleccion-validacion-glm-regresion-supervised
 #| eval: true
-#| echo: true
 
 resultados_glm = pd.DataFrame([
     resultado_lineal,
@@ -829,7 +819,6 @@ Además, añadimos dos diagnósticos propios de modelos lineales:
 ```{python}
 #| label: errores-validacion-glm-regresion-supervised
 #| eval: true
-#| echo: true
 #| warning: false
 
 df_errores_validacion = pd.DataFrame({
