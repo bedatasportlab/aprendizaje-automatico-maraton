@@ -20,6 +20,10 @@ book:
     - notebooks/04_supervised.qmd
     - notebooks/05_discusion.qmd
 
+execute:
+  freeze: auto    
+  warning: false
+
 format:
   html:
     theme: cosmo

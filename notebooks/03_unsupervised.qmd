@@ -8,14 +8,10 @@ En este capítulo se realizarán diversos estudios de Aprendizaje no Supervisado
 2. **Clustering Jerárquico** para agrupar a corredores similares en cuanto a sus resultados en las 3 maratones
 3. **Clustering en streaming** para seguir a los atletas de élite a través de cada parcial
 
-## Importación de librerías
-
-Para comenzar, cargamos el ecosistema necesario: 
 
 ```{python}
 #| label: importar-librerias-unsupervised
 #| eval: true
-#| echo: true
 #| warning: false
 
 import pandas as pd
@@ -32,36 +28,19 @@ from sklearn.preprocessing import StandardScaler
 # Herramientas para hacer el jerárquico
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 # Herramientas para los mapas auto-organizados
-
 # Para los gráficos del clustering en streaming
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import plotly.express as px
-
 from kneed import KneeLocator # para clusters óptimos
-
-
 sns.set_theme(style="whitegrid")
 plt.rcParams['figure.figsize'] = (12, 6)
 plt.rcParams['font.size'] = 11
 
-```
 
-## Carga de datos
-
-Cargamos los datos resultantes tras haber hecho el análisis exploratorio de datos en la anterior sección.
-
-```{python}
-#| label: carga-datos-unsupervised
-#| eval: true
-#| echo: true
-#| warning: false
-
-# Si no os deja cargarlo al trabajar (no al hacer quarto render), en la consola importar os y dejais como directorio de trabajo la carpeta de notebooks
-# import os
-# os.getcwd (y si no está en notebook, poneis en la consola os.chdir("notebooks"))
 df_boston = pd.read_parquet("../data/processed/boston_post_eda.parquet")
 ```
+
 
 
 ## Clustering No Jerárquico: Identificación de Estrategias de Carrera (*Pacing*)
@@ -88,17 +67,23 @@ Donde $k$ es el número de clústeres, $C_i$ es el conjunto de puntos que perten
 
 ### Metodología de Ejecución y Análisis
 
-Para que el algoritmo capture estrategias puras y no se sesgue por la velocidad absoluta del corredor, se debe seguir un riguroso proceso de ingeniería de características (*Feature Engineering*) y análisis posterior:
+Para que el algoritmo capture estrategias puras y no se sesgue por la velocidad absoluta del corredor, se debe seguir un riguroso proceso de ingeniería de características (*Feature Engineering*) y análisis posterior.
 
-#### 1. Transformación de los Tiempos (Normalización de Ritmos)
+#### Transformación de los Tiempos (Normalización de Ritmos)
+
 Los tiempos del dataset original son acumulativos. Para capturar el esfuerzo en cada tramo, se debe transformar la variable de paso calculando el **tiempo neto de cada segmento** (ej. $T_{10k} - T_{5k}$ para obtener el tiempo invertido exclusivamente entre el kilómetro 5 y el 10). 
 Una vez calculados los tiempos netos por tramo, estos se deben dividir entre el tiempo final oficial (`official_time`). De este modo, cada variable representará el **porcentaje del tiempo total** que el atleta invirtió en ese parcial concreto.
 
 ```{python}
-# 1. Definir los tramos (ajusta los nombres según tu dataset)
+#| label: transformar-tiempos
+#| eval: true
+#| warning: false
+
+
+# 1. Definir los tramos
 tramos = ['5k', '10k', '15k', '20k', '25k', '30k', '35k', '40k', 'official_time']
 
-# 2. Calcular tiempos netos por tramo (diferencias)
+# 2. Calcular tiempos netos por tramo
 df_steps = df_boston[tramos].copy()
 df_neto = pd.DataFrame()
 
@@ -112,14 +97,15 @@ df_neto['split_7'] = df_steps['35k'] - df_steps['30k']
 df_neto['split_8'] = df_steps['40k'] - df_steps['35k']
 df_neto['split_9'] = df_steps['official_time'] - df_steps['40k']
 
-# 3. Normalizar: ¿Qué porcentaje del tiempo total representa cada tramo?
+# 3. Normalizar
 df_pacing_norm = df_neto.div(df_boston['official_time'], axis=0) * 100
 
 # Mostramos el resultado
-df_pacing_norm.head()
+print(df_pacing_norm.head(10).to_markdown(index=False))
 ```
 
-#### 2. Determinación del Número Óptimo de Clústeres ($k$)
+#### Determinación del Número Óptimo de Clústeres ($k$)
+
 Se iterará el algoritmo K-Means para distintos valores de $k$ (por ejemplo, del 2 al 10). Para seleccionar el $k$ óptimo que mejor defina las tipologías de corredores, se apoyará la decisión en dos métricas gráficas:
 
 * **El Método del Codo (*Elbow Method*):** Analizando la curva de caída de la Inercia.
@@ -127,8 +113,9 @@ Se iterará el algoritmo K-Means para distintos valores de $k$ (por ejemplo, del
 * **El Análisis de la Silueta (*Silhouette Score*):** Para medir la cohesión y separación real de los grupos formados.
 
 ```{python}
+#| label: determinar-numero-optimo
+#| eval: true
 #| warning: false
-#| message: false
 
 inercia = []
 silueta = []
@@ -183,12 +170,14 @@ print("-" * 30)
 
 Aunque la recomendación incial es de 2 clusters, al observar el gráfico se observa un cambio significativo en la pendiente de la gráfica en el número 3. En maratón, cambios que a priori parecen pequeños pueden marcar la diferencia entre el ganador y los demás, o entre conseguir el objetivo o no hacerlo. En pro de tener una visión granular de las estrategias de carrera se establece el número óptimo de clusters en 3.
 
-#### 3. Perfilado y Visualización de Estrategias
+#### Perfilado y Visualización de Estrategias
+
 Una vez elegida la $k$ óptima y asignados los grupos, se extraerán las coordenadas de los centroides finales. Se graficarán estos centroides en un gráfico de líneas superpuestas (Eje X: Segmento de carrera; Eje Y: Porcentaje de tiempo invertido). Esto permitirá nombrar a cada cluster.
 
 ```{python}
+#| label: visualizacion-estrategias-cluster
+#| eval: true
 #| warning: false
-#| message: false
 
 # Ajustamos con el k elegido (ejemplo k=3)
 k_optima = 3 
@@ -218,12 +207,14 @@ En cuanto a los demás estadios de la carrera, se observa lo siguiente:
 
 - La estrategia dibujada de naranja e identificada con el número 1 se ve estable aunque con ligeras fluctuaciones. Esta táctica sigue considerándose uniforme ya que dichas variaciones no son tan significativas como para afirmar que el final ha sido mucho más lento que el comienzo. Sin embargo, para diferenciarla de la estrategia uniforme pura, se le pondrá el nombre de **Uniforme-Positiva**.
 
-#### 4. Conclusiones y Cruce de Variables
+#### Conclusiones y Cruce de Variables
+
 Finalmente, se extraerá el valor de negocio de la agrupación realizando un análisis cruzado (*Cross-tabulation*). Se evaluará, por ejemplo, la relación entre cada cluster y la variable `hit_the_wall` o el porcentaje de atletas (sobre el total de ese grupo) que hay en cada clúster.
 
 ```{python}
+#| label: cruce-variables-cluster-jerarquico
+#| eval: true
 #| warning: false
-#| message: false
 
 # Mapear los nombres
 nombres_estrategias = {
@@ -246,7 +237,6 @@ Se procede ahora a evaluar la varible "Chocar contra el muro" con resultados obj
 #| warning: false
 #| message: false
 
-# --- GRÁFICO 1: HIT THE WALL ---
 plt.figure(figsize=(10, 6)) 
 cross_wall = pd.crosstab(df_boston['pacing_label'], df_boston['hit_the_wall'], normalize='index') * 100
 
@@ -270,8 +260,9 @@ En la estrategia Uniforme-Positiva se observa una división de los corredores. M
 El porcentaje restante si ha sido clasificado como que chocó contra el muro. Esto puede sugerir un ritmo estable hasta la mitad de la carrera y un ligero desfallecimiento desde un tramo central hasta el final. Estos atletas consiguieron aguantar la fatiga de la segunda mitad de la carrera y mantenerse relativamente estables, aunque a un ritmo inferior que el inicial.
 
 ```{python}
+#| label: grafica-2-cluster-jerarquico
+#| eval: true
 #| warning: false
-#| message: false
 
 # --- GRÁFICO 2: RENDIMIENTO FINAL ---
 plt.figure(figsize=(10, 6)) 
@@ -296,6 +287,17 @@ En la estrategia positiva los outliers son los deportistas que no solo fueron m�
 En la estrategia Uniforme-Positiva los outliers indican un comportamiento similar, además de ritmos absolutos más lentos, hubo diferentes magnitudes en las fluctuaciones sufridas a lo largo de los segmentos de la maratón.
 
 Cruzar la variable "chocar contra el muro" con la estrategia y el tiempo final permite comprender cómo los procesos fisiológicos internos (chocar contra el muro implica una depleción en los depósitos musculares de glucógeno por la acumulación de kilómetros a una intensidad determinada) afectan a los resultados externos, objetivos y visibles: las estrategias y el tiempo final.
+
+
+```{python}
+#| label: eliminar-cosas-numero-optimo
+#| eval: true
+#| echo: false
+#| warning: false
+
+del cross_wall, centroides, df_neto, df_pacing_norm, df_steps, ax1, ax2, fig, inercia, k, k_optima, k_optimo_codo, k_optimo_silueta, nombres_estrategias, rango_k, silueta, tramos
+
+```
 
 ## Clustering Jerárquico: Análisis Táctico de la Élite Femenina (2015)
 
@@ -327,21 +329,20 @@ El resultado de este proceso no es una simple asignación de etiquetas, sino una
 
 ### Análisis Táctico
 
-Para este estudio, aplicaremos esta técnica con el fin de identificar perfiles de consistencia temporal; es decir, agruparemos a los corredores basándonos en cómo ha evolucionado su rendimiento a lo largo de las ediciones de 2015, 2016 y 2017.
+Lo primero que se realizará será construir el dataframe con los datos de las atletas de Élite de la edición de 2015. 
 
 ```{python}
 #| label: preparacion-tactica-elite-unsupervised
 #| eval: true
-#| echo: true
+#| warning: false
 
-# 1. Filtramos: Nos quedamos con la edición 2015, mujeres y categoría Élite
-# Convertimos Date a datetime para extraer el año de forma segura
+
 filtro_2015 = pd.to_datetime(df_boston['Date']).dt.year == 2015
 df_elite_f_2015 = df_boston[filtro_2015 & (df_boston['gender'] == 'F') & (df_boston['athlete_level'] == 'Élite')].copy()
 
 print(f"Total de corredoras en la Élite Femenina de 2015: {len(df_elite_f_2015)}")
 
-# 2. Calculamos los tiempos netos de cada tramo (segmentos de 5km + sprint final)
+
 df_elite_f_2015['net_0_5k']   = df_elite_f_2015['5k']
 df_elite_f_2015['net_5_10k']  = df_elite_f_2015['10k'] - df_elite_f_2015['5k']
 df_elite_f_2015['net_10_15k'] = df_elite_f_2015['15k'] - df_elite_f_2015['10k']
@@ -352,7 +353,7 @@ df_elite_f_2015['net_30_35k'] = df_elite_f_2015['35k'] - df_elite_f_2015['30k']
 df_elite_f_2015['net_35_40k'] = df_elite_f_2015['40k'] - df_elite_f_2015['35k']
 
 
-# 3. Normalizamos: Convertimos los netos a porcentajes del tiempo total
+
 columnas_netas = ['net_0_5k', 'net_5_10k', 'net_10_15k', 'net_15_20k', 
                   'net_20_25k', 'net_25_30k', 'net_30_35k', 'net_35_40k']
 
@@ -362,17 +363,14 @@ for col in columnas_netas:
     df_elite_f_2015[nuevo_nombre] = df_elite_f_2015[col] / df_elite_f_2015['official_time']
     variables_clustering.append(nuevo_nombre)
 
-# 4. Establecemos el nombre de la corredora como índice
-# Esto es CRUCIAL para que SciPy ponga sus nombres reales al final del dendrograma
+
 df_elite_f_2015.set_index('display_name', inplace=True)
 
-# 5. Creamos el sub-dataframe definitivo (X) solo con las variables a agrupar
-X_jerarquico = df_elite_f_2015[variables_clustering]
 
-# Vista previa de las primeras 3 corredoras
-print("\nMatriz de características tácticas (porcentajes) lista para SciPy:\n")
-print(X_jerarquico.head(3).to_markdown())
+X_jerarquico = df_elite_f_2015[variables_clustering]
 ```
+
+
 
 ```{python}
 #| label: eliminar-1-unsupervised
@@ -390,15 +388,12 @@ Comenzamos calculando el clustering jerárquico utilizando un enlace simple:
 ```{python}
 #| label: calculo-jerarquico-elite
 #| eval: true
-#| echo: true
 #| warning: false
 
-# 1. Estandarizamos los datos para que todos los tramos de 5km pesen lo mismo
+
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X_jerarquico)
 
-# 2. Calculamos la matriz de enlaces (Clustering Jerárquico)
-# La variable 'Z' contendrá toda la historia de cómo se han ido uniendo las corredoras
 Z = linkage(X_scaled, method='single')
 
 plt.figure(figsize=(14, 8))
@@ -406,13 +401,13 @@ plt.title("Dendrograma Táctico - Élite Femenina Boston 2015", fontsize=16, fon
 plt.ylabel("Distancia (Variabilidad intra-clúster)", fontsize=12)
 plt.xlabel("Atletas", fontsize=12)
 
-# Dibujamos el dendrograma completo
+
 dendro = dendrogram(
     Z, 
     labels=X_jerarquico.index, 
     leaf_rotation=90, 
     leaf_font_size=10,
-    color_threshold=0 # Lo ponemos a 0 para que de momento salga todo de un color hasta que decidamos el corte
+    color_threshold=0 
 )
 
 plt.tight_layout()
@@ -425,7 +420,6 @@ Tras visualizar el dendrograma, observamos que se pueden sacar 2 grupos distinto
 ```{python}
 #| label: centroides-elite-unsupervised
 #| eval: true
-#| echo: true
 #| warning: false
 #| fig-width: 12
 #| fig-height: 6
@@ -482,20 +476,20 @@ Para descubrirlo, cruzaremos las etiquetas de los grupos tácticos obtenidos con
 #| warning: false
 #| output: asis
 
-# 1. Agrupamos por clúster táctico y calculamos métricas sobre la posición
+
 resumen_posiciones = df_elite_f_2015.groupby('cluster_tactico').agg(
     Num_Atletas=('division_result', 'count'),
     Posicion_Media=('division_result', 'mean'),
     Mejor_Posicion=('division_result', 'min')
 ).reset_index()
 
-# 2. Añadimos una columna visual para identificar rápidamente dónde está la ganadora
+
 resumen_posiciones['Ganadora_en_grupo'] = resumen_posiciones['Mejor_Posicion'].apply(lambda x: 'Sí 🏆' if x == 1.0 else 'No')
 
-# 3. Redondeamos los decimales para que la tabla quede limpia
+
 resumen_posiciones = resumen_posiciones.round({'Posicion_Media': 1})
 
-# 4. Renombramos columnas para la presentación
+
 resumen_posiciones.rename(columns={
     'cluster_tactico': 'Grupo Táctico',
     'Num_Atletas': 'Nº Atletas',
@@ -504,13 +498,13 @@ resumen_posiciones.rename(columns={
     'Ganadora_en_grupo': '¿Contiene a la Ganadora?'
 }, inplace=True)
 
-# 5. Imprimimos la tabla en formato Markdown
-print("\n") # Salto de línea por seguridad para Pandoc
+
+print("\n")
 print(resumen_posiciones.to_markdown(index=False))
 print("\n")
 ```
 
-Por lo tanto observamos que la estrategia constante (Cluster 1) es la mejor estrategia en cuanto a resultados obtenidos. 
+Por lo tanto observamos ¡'que la estrategia constante (Cluster 1) es la mejor estrategia en cuanto a resultados obtenidos. 
 
 
 ```{python}
@@ -524,7 +518,7 @@ del centroides_jerarquico, df_elite_f_2015, resumen_posiciones, X_jerarquico, al
 
 ## Clustering en Streaming: Simulación de Carrera en Vivo
 
-Hasta ahora se ha visualizado la maratón como una foto fija de lo que ha ocurrido. Con el clustering en streaming se observan cómo han cambiado los grupos de carreras a lo largo de los tramos en función de la fatiga y los cambios de ritmo. Para este último apartado del análisis no supervisado se toma a las atletas de élite de la maratón de 2015 como muestra de estudio.
+Hasta ahora se ha visualizado la maratón como una foto fija de lo que ha ocurrido. A continuación, el enfoque cambia.
 
 ### Fundamentación teórica
 
@@ -544,21 +538,23 @@ El Clustering en streaming se hará primeramente pre-estableciendo grupos de car
 
 Se adoptarán dos enfoques distintos:
 
-- Enfoque Acumulado (Tiempos): Captura la "posición relativa" total. Responde a: ¿En qué paquete de la carrera se encuentra la atleta?
+- **Enfoque Acumulado (Tiempos)**: Captura la "posición relativa" total. Responde a: ¿En qué paquete de la carrera se encuentra la atleta?
 
-- Enfoque Puntual (Ritmos): Captura el "esfuerzo actual". Responde a: ¿Cómo está corriendo la atleta en este momento específico, independientemente de lo que hizo antes?
+- **Enfoque Puntual (Ritmos)**: Captura el "esfuerzo actual". Responde a: ¿Cómo está corriendo la atleta en este momento específico, independientemente de lo que hizo antes?
 
 ```{python}
+#| label: cluster-preestablecidos-1
+#| eval: true
 #| warning: false
 
-# --- PREPARACIÓN DE DATOS ---
+
 filtro_2015 = pd.to_datetime(df_boston['Date']).dt.year == 2015
 df_elite = df_boston[filtro_2015 & (df_boston['gender'] == 'F') & (df_boston['athlete_level'] == 'Élite')].copy()
 
 splits = ['5k', '10k', '15k', '20k', '25k', '30k', '35k', '40k', 'official_time']
 scaler = StandardScaler()
 
-# Función para generar los gráficos
+
 def generar_sankey(df, cols_etapas, titulo, nombres_grupos=None):
     links = []
     node_labels = []
@@ -642,12 +638,14 @@ diccionario_elites = {
 }
 ```
 
-#### 1. Enfoque acumulado: tiempos
+
+
+#### Enfoque Acumulado (Tiempos)
 
 ```{python}
 #| warning: false
 
-# --- A. ANÁLISIS POR TIEMPOS ACUMULADOS ---
+
 col_acumuladas = []
 splits = ['5k', '10k', '15k', '20k', '25k', '30k', '35k', '40k', 'official_time']
 
@@ -879,7 +877,7 @@ A modo de resumen, en este último gráfico se observa la diferencia entre el n�
 ```{python}
 import plotly.express as px
 
-# Crear un DataFrame para la comparativa de K
+# Crear un DataFrame para la comparativa Pde K
 df_k = pd.DataFrame({
     'Tramo': [s.upper() for s in splits],
     'K_Tiempos': k_values_time,
